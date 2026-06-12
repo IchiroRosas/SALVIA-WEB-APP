@@ -6,7 +6,7 @@ import { take } from 'rxjs';
 import Swal from 'sweetalert2';
 
 //import { LoginService } from '../../services/login.service'; 
-import { Usuario } from '../../shared/models/dto'; 
+import { Usuario } from '../../shared/models/dto';
 
 @Component({
   selector: 'app-login',
@@ -90,4 +90,13 @@ export class LoginComponent implements OnInit {
       showConfirmButton: false
     });
   }
+
+  irARegistrarEmpresa() {
+    this.router.navigate(['/registrar-empresa']);
+  }
+
+  irARegistrarEmpleado() {
+    this.router.navigate(['/registrar-empleado']);
+  }
+
 }

@@ -1,0 +1,64 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="logo">
+      <img src="/logo-salvia-2.png" alt="Salvia Logo">
+      <h2 class="form-title">Registra tu empresa</h2>
+    </div>
+
+    <form [formGroup]="empresaForm" (ngSubmit)="registrarEmpresa()">
+      
+      <div class="input-group">
+        <label for="uid">UID Reservado</label>
+        <div class="uid-wrapper">
+          <input type="text" id="uid" formControlName="uid" readonly class="input-readonly">
+          <button type="button" class="btn-copy" (click)="copiarUID()" title="Copiar UID">
+            📋
+          </button>
+        </div>
+        <small class="input-hint">Este será el identificador único de tu empresa en el sistema.</small>
+      </div>
+
+      <div class="input-group">
+        <label for="razonSocial">Razón Social</label>
+        <input type="text" id="razonSocial" placeholder="Escribir nombre..." formControlName="razonSocial">
+        
+        @if (empresaForm.controls['razonSocial'].invalid && (empresaForm.controls['razonSocial'].dirty || empresaForm.controls['razonSocial'].touched)) {
+          <div class="error-message">
+            <span>La razón social es obligatoria (mínimo 3 caracteres).</span>
+          </div>
+        }
+      </div>
+
+      <div class="input-group">
+        <label for="ruc">RUC</label>
+        <input type="text" id="ruc" placeholder="Escribir RUC..." formControlName="ruc" maxlength="11">
+        
+        @if (empresaForm.controls['ruc'].invalid && (empresaForm.controls['ruc'].dirty || empresaForm.controls['ruc'].touched)) {
+          <div class="error-message">
+            <span>El RUC es obligatorio y debe contener 10 u 11 dígitos numéricos.</span>
+          </div>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <div class="general-error">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <div class="actions-container">
+        <button type="submit" class="btn-primary" [disabled]="empresaForm.invalid || isLoading">
+          @if (!isLoading) {
+            <strong>Registrar</strong>
+          } @else {
+            <strong>Procesando...</strong>
+          }
+        </button>
+        <button type="button" class="btn-primary" (click)="volver()">
+            <strong>Volver</strong>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
