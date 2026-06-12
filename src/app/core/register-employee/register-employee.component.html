@@ -1,1 +1,95 @@
-<p>register-employee works!</p>
+<div class="login-container">
+  <div class="login-box">
+    <div class="logo">
+      <img src="/logo-salvia-2.png" alt="Salvia Logo">
+      <h2 class="form-title">Registrar Usuario</h2>
+    </div>
+
+    <div class="method-selector">
+      <button type="button" 
+              [class.active]="metodoRegistro === 'tradicional'" 
+              (click)="cambiarMetodo('tradicional')">
+        Tradicional
+      </button>
+      <button type="button" 
+              [class.active]="metodoRegistro === 'google'" 
+              (click)="cambiarMetodo('google')">
+        Google G
+      </button>
+    </div>
+
+    <form [formGroup]="empleadoForm" (ngSubmit)="ejecutarRegistro()">
+      
+      <div class="input-group">
+        <label for="uid">UID de su empresa</label>
+        <div class="uid-wrapper">
+          <input type="text" id="uid" formControlName="uid" maxlength="20" placeholder="Escriba el UID de su empresa...">
+        </div>
+        @if (empleadoForm.controls['uid'].invalid && empleadoForm.controls['uid'].touched) {
+          <div class="error-message"><span>El UID de la empresa es obligatorio.</span></div>
+        }
+      </div>
+
+      <div class="input-group">
+        <label for="nombreCompleto">Nombre Completo</label>
+        <input type="text" id="nombreCompleto" placeholder="Escribir nombres y apellidos..." formControlName="nombreCompleto">
+        @if (empleadoForm.controls['nombreCompleto'].invalid && empleadoForm.controls['nombreCompleto'].touched) {
+          <div class="error-message"><span>El nombre completo es obligatorio.</span></div>
+        }
+      </div>
+
+      <div class="input-group">
+        <label for="rol">Rol del Usuario</label>
+        <select id="rol" formControlName="rol">
+          <option value="" disabled selected hidden>Seleccionar rol...</option>
+          <option value="Administrador">Administrador</option>
+          <option value="Empleado">Empleado</option>
+        </select>
+        @if (empleadoForm.controls['rol'].invalid && empleadoForm.controls['rol'].touched) {
+          <div class="error-message"><span>Debes asignar un rol al usuario.</span></div>
+        }
+      </div>
+
+      @if (metodoRegistro === 'tradicional') {
+        <div class="input-group animate-fade">
+          <label for="correo">Correo Electrónico</label>
+          <input type="email" id="correo" placeholder="ejemplo@salvia.com" formControlName="correo">
+          @if (empleadoForm.controls['correo'].invalid && empleadoForm.controls['correo'].touched) {
+            <div class="error-message"><span>Formato de correo electrónico inválido.</span></div>
+          }
+        </div>
+
+        <div class="input-group animate-fade">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="Mínimo 6 caracteres..." formControlName="password">
+          @if (empleadoForm.controls['password'].invalid && empleadoForm.controls['password'].touched) {
+            <div class="error-message"><span>Contraseña requerida (mínimo 6 caracteres).</span></div>
+          }
+        </div>
+      }
+
+      @if (errorMessage) {
+        <div class="general-error">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <div class="actions-container">
+        <button type="submit" class="btn-primary" [disabled]="empleadoForm.invalid || isLoading">
+          @if (isLoading) {
+            <strong>Procesando...</strong>
+          } @else {
+            <strong>
+              {{ metodoRegistro === 'tradicional' ? 'Registrar Usuario' : 'Registrar con Google' }}
+            </strong>
+          }
+        </button>
+        
+        <button type="button" class="btn-primary btn-back" (click)="volver()">
+          <strong>Volver</strong>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

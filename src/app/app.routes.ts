@@ -17,5 +17,9 @@ export const routes: Routes = [
     {
         path: 'registrar-empleado',
         loadComponent: () => import('./core/register-employee/register-employee.component').then(m => m.RegisterEmployeeComponent)
-    }
+    },
+    {
+        path: 'menu-principal',
+        loadComponent: () => import('./features/main/main.component').then(m => m.MainComponent)
+    },
 ];
