@@ -4,39 +4,36 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { take } from 'rxjs';
 import Swal from 'sweetalert2';
-
 //import { LoginService } from '../../services/login.service'; 
 import { Usuario } from '../../shared/models/dto';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PasarelaPagoComponent } from '../pasarela-pago/pasarela-pago.component';
 
 @Component({
   selector: 'app-register-company',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MatDialogModule],
   templateUrl: './register-company.component.html',
   styleUrl: './register-company.component.css'
 })
 export class RegisterCompanyComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
+  router = inject(Router);
 
   empresaForm!: FormGroup;
   isLoading = false;
   errorMessage: string | null = null;
-  router = inject(Router);
 
   ngOnInit(): void {
-    // 1. Generamos el UID aleatorio de 20 caracteres
     const uidInstanciado = this.generarFirebaseId();
-
-    // 2. Inicializamos el formulario reactivo
     this.empresaForm = this.fb.group({
       uid: [uidInstanciado, Validators.required],
       razonSocial: ['', [Validators.required, Validators.minLength(3)]],
-      // Valida que sean solo números y que tenga exactamente entre 10 y 11 caracteres
       ruc: ['', [Validators.required, Validators.pattern('^[0-9]{10,11}$')]]
     });
   }
 
-  // Algoritmo que emula los UIDs de colección de Firebase
   generarFirebaseId(): string {
     const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let resultado = '';
@@ -64,14 +61,41 @@ export class RegisterCompanyComponent implements OnInit {
   registrarEmpresa(): void {
     if (this.empresaForm.invalid) return;
 
-    this.isLoading = true;
-    this.errorMessage = null;
+    const dialogRef = this.dialog.open(PasarelaPagoComponent, {
+      width: '400px',
+      disableClose: true
+    });
 
-    const datosEmpresa = this.empresaForm.value;
-    console.log('Datos enviados a la pasarela/Firestore:', datosEmpresa);
+    dialogRef.afterClosed().pipe(take(1)).subscribe((pagoExitoso: boolean) => {
+      if (pagoExitoso) {
+        this.isLoading = true;
+        this.errorMessage = null;
 
-    // Aquí ejecutas tu lógica de envío
-    // ...
+        const datosEmpresa = this.empresaForm.value;
+        console.log('Pago verificado. Guardando en Firestore:', datosEmpresa);
+
+        // AQUÍ REY, VA TU PROCESO DE FIRESTORE:
+        // this.empresaService.guardarEmpresa(datosEmpresa).then(...)
+        
+        Swal.fire({
+          icon: 'success',
+          title: '¡Registro Exitoso!',
+          text: 'Tu empresa y pago han sido procesados correctamente.',
+          confirmButtonColor: '#3287bd'
+        }).then(() => {
+          this.isLoading = false;
+          this.router.navigate(['/login']);
+        });
+
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Pago Cancelado',
+          text: 'No se realizaron cargos. El registro de la empresa no se completó.',
+          confirmButtonColor: '#475569'
+        });
+      }
+    });
   }
 
   volver(): void {

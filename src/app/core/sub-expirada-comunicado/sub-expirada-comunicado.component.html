@@ -1,0 +1,20 @@
+<div class="comunicado-modal">
+  <div class="icon-alert">⏳</div>
+  
+  <h2 class="modal-title">Suscripción Caducada</h2>
+  
+  <div class="modal-body">
+    <p>El período de membresía asignado a su empresa en <strong>Salvia</strong> ha finalizado.</p>
+    <p>Para restablecer el acceso es necesario renovar tu plan activo.</p>
+    <div class="highlight-box">
+      <strong>Nota importante:</strong> Tus registros, inventarios e información configurada se encuentran completamente seguros y resguardados en nuestros servidores. No perderás ningún dato.
+    </div>
+  </div>
+
+  <div class="modal-actions">
+    <button type="button" class="btn-salir" (click)="volver()">Volver</button>
+    <ng-container *ngIf="usuarioAdministrador === 'Administrador'">
+      <button type="button" class="btn-renovar" (click)="renovar()">Renovar ahora</button>
+    </ng-container>
+  </div>
+</div>
