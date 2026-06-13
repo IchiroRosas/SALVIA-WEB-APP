@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register-employee',
@@ -15,6 +16,7 @@ import Swal from 'sweetalert2';
 export class RegisterEmployeeComponent implements OnInit {
   private fb = inject(FormBuilder);
   router = inject(Router);
+  private authService = inject(AuthService);
 
   empleadoForm!: FormGroup;
   isLoading = false;
@@ -43,52 +45,77 @@ export class RegisterEmployeeComponent implements OnInit {
     if (metodo === 'google') {
       correoControl?.clearValidators();
       passwordControl?.clearValidators();
-      correoControl?.setValue('');
-      passwordControl?.setValue('');
+      correoControl?.setValue('google@temporal.com');
+      passwordControl?.setValue('123456');
     } else {
       correoControl?.setValidators([Validators.required, Validators.email]);
       passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
+      correoControl?.setValue('');
+      passwordControl?.setValue('');
     }
-
     correoControl?.updateValueAndValidity();
     passwordControl?.updateValueAndValidity();
   }
 
-  ejecutarRegistro(): void {
+  async ejecutarRegistro(): Promise<void> {
     if (this.empleadoForm.invalid) return;
 
     this.isLoading = true;
+    this.errorMessage = null;
     const datosUsuario = this.empleadoForm.value;
 
-    if (this.metodoRegistro === 'tradicional') {
-      console.log('Registrando via Firebase Email/Password:', datosUsuario);
-      
-      // Aquí iría tu servicio: this.authService.registerWithEmail(...)
+    try {
+      const empresaExiste = await this.authService.verificarEmpresaExiste(datosUsuario.uid);
 
-    } else {
-      console.log('Registrando-lanzando PopUp de Google Auth:', {
-        uid: datosUsuario.uid,
-        nombre: datosUsuario.nombreCompleto,
-        rol: datosUsuario.rol
-      });
+      if (!empresaExiste) {
+        this.isLoading = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Empresa no encontrada',
+          text: 'El UID ingresado no corresponde a ninguna empresa registrada en Salvia.',
+          confirmButtonColor: '#ef4444'
+        });
+        return;
+      }
 
-      //Aquí se lanzaría el PopUp de Google Auth y luego se procesaría la respuesta para crear el usuario en Firebase con el rol asignado.
-      // Aquí iría tu servicio: this.authService.registerWithGooglePopup(...)
+      if (this.metodoRegistro === 'tradicional') {
+        await this.authService.registrarConEmail(datosUsuario);
+      } else {
+        await this.authService.registrarConGoogle(datosUsuario);
+      }
 
-    }
-
-    setTimeout(() => {
       this.isLoading = false;
+
       Swal.fire({
         icon: 'success',
-        title: 'Usuario registrado',
-        text: `El perfil fue creado exitosamente bajo el rol de ${datosUsuario.rol}.`,
+        title: '¡Usuario Registrado!',
+        text: `El perfil fue guardado con éxito bajo el rol de "${datosUsuario.rol}".`,
         confirmButtonColor: '#3287bd'
       }).then(() => this.volver());
-    }, 1500);
+
+    } catch (error: any) {
+      this.isLoading = false;
+      console.error('Error durante el registro:', error);
+
+      if (error.code === 'auth/email-already-in-use') {
+        this.errorMessage = 'El correo electrónico ya se encuentra registrado.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        this.errorMessage = 'Se cerró la ventana de autenticación de Google.';
+      } else {
+        this.errorMessage = 'Ocurrió un error inesperado en el servidor. Inténtalo de nuevo.';
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de registro',
+        text: this.errorMessage,
+        confirmButtonColor: '#ff4d4d'
+      });
+    }
   }
 
   volver(): void {
     this.router.navigate(['/login']);
   }
+
 }

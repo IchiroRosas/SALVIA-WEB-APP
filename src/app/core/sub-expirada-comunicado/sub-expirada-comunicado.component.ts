@@ -20,8 +20,7 @@ export class SubExpiradaComunicadoComponent {
 
   isLoading = false;
 
-  //MODIFICAR A GUSTO PARA PROBAR POPUP DE SUB EXPIRADA CON BTN DE RENOVAR SUB
-  usuarioAdministrador: string = sessionStorage.getItem('rol') || 'Administrador'; // Simulamos que el usuario es un Administrador o Empleado
+  usuarioAdministrador: string = sessionStorage.getItem('rol') || 'Administrador';
 
   volver(): void {
     this.dialogRef.close();

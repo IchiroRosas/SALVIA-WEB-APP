@@ -5,9 +5,9 @@ import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { take } from 'rxjs';
 import Swal from 'sweetalert2';
 //import { LoginService } from '../../services/login.service'; 
-import { Usuario } from '../../shared/models/dto';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PasarelaPagoComponent } from '../pasarela-pago/pasarela-pago.component';
+import {AuthService} from '../services/auth.service';
 
 @Component({
   selector: 'app-register-company',
@@ -20,6 +20,7 @@ export class RegisterCompanyComponent implements OnInit {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   router = inject(Router);
+  private authService = inject(AuthService);
 
   empresaForm!: FormGroup;
   isLoading = false;
@@ -71,22 +72,32 @@ export class RegisterCompanyComponent implements OnInit {
         this.isLoading = true;
         this.errorMessage = null;
 
-        const datosEmpresa = this.empresaForm.value;
-        console.log('Pago verificado. Guardando en Firestore:', datosEmpresa);
+        const { uid, razonSocial, ruc } = this.empresaForm.value;
 
-        // AQUÍ REY, VA TU PROCESO DE FIRESTORE:
-        // this.empresaService.guardarEmpresa(datosEmpresa).then(...)
-        
-        Swal.fire({
-          icon: 'success',
-          title: '¡Registro Exitoso!',
-          text: 'Tu empresa y pago han sido procesados correctamente.',
-          confirmButtonColor: '#3287bd'
-        }).then(() => {
-          this.isLoading = false;
-          this.router.navigate(['/login']);
-        });
+        this.authService.guardarEmpresa(uid, razonSocial, ruc)
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Registro Exitoso!',
+              text: `No olvides guardar el UID para registrar los usuarios asociados a la empresa: ${uid}`,
+              confirmButtonColor: '#3287bd'
+            }).then(() => {
+              this.isLoading = false;
+              this.router.navigate(['/login']);
+            });
+          })
+          .catch((error) => {
+            console.error('Error al guardar en Firestore:', error);
+            this.isLoading = false;
+            this.errorMessage = 'Error al registrar la empresa en la base de datos. Inténtelo de nuevo.';
 
+            Swal.fire({
+              icon: 'error',
+              title: 'Error de Servidor',
+              text: 'No se pudo guardar la información de la empresa.',
+              confirmButtonColor: '#ff4d4d'
+            });
+          });
       } else {
         Swal.fire({
           icon: 'warning',
