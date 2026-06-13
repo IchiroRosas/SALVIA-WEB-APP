@@ -13,7 +13,7 @@
 
   <div class="modal-actions">
     <button type="button" class="btn-salir" (click)="volver()">Volver</button>
-    <ng-container *ngIf="usuarioAdministrador === 'Administrador'">
+    <ng-container *ngIf="usuarioAdministrador === 'Administrador' || usuarioAdministrador === 'administrador'">
       <button type="button" class="btn-renovar" (click)="renovar()">Renovar ahora</button>
     </ng-container>
   </div>

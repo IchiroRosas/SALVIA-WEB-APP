@@ -37,7 +37,7 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     border-radius: 1.5rem;
-    padding: 2rem 2rem;
+    padding: 0rem 2rem 0.8rem 2rem;
     width: min(25rem, 90%);
     text-align: center;
     box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.18);
