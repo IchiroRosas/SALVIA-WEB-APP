@@ -25,6 +25,7 @@ export class SubExpiradaComunicadoComponent {
   usuarioAdministrador: string = sessionStorage.getItem('rol') || '';
 
   volver(): void {
+    sessionStorage.clear();
     this.dialogRef.close();
     this.router.navigate(['/login']);
     window.location.reload();
@@ -67,10 +68,12 @@ export class SubExpiradaComunicadoComponent {
             this.router.navigate(['/login']);
           });
 
+          sessionStorage.clear();
+
         } catch (error) {
           this.isLoading = false;
           console.error('Error al procesar la renovación en la base de datos:', error);
-
+          sessionStorage.clear();
           Swal.fire({
             icon: 'error',
             title: 'Error de activación',
@@ -80,6 +83,7 @@ export class SubExpiradaComunicadoComponent {
         }
 
       } else {
+        sessionStorage.clear();
         Swal.fire({
           icon: 'warning',
           title: 'Pago Cancelado',
