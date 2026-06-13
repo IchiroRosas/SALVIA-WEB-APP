@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { PasarelaPagoComponent } from '../pasarela-pago/pasarela-pago.component';
 import { take } from 'rxjs';
 import Swal from 'sweetalert2';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-sub-expirada-comunicado',
@@ -17,10 +18,11 @@ export class SubExpiradaComunicadoComponent {
   private dialogRef = inject(MatDialogRef<SubExpiradaComunicadoComponent>);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   isLoading = false;
 
-  usuarioAdministrador: string = sessionStorage.getItem('rol') || 'Administrador';
+  usuarioAdministrador: string = sessionStorage.getItem('rol') || '';
 
   volver(): void {
     this.dialogRef.close();
@@ -34,16 +36,26 @@ export class SubExpiradaComunicadoComponent {
       disableClose: true
     });
 
-    pasarelaRef.afterClosed().pipe(take(1)).subscribe((pagoExitoso: boolean) => {
+    pasarelaRef.afterClosed().pipe(take(1)).subscribe(async (pagoExitoso: boolean) => {
       if (pagoExitoso) {
         this.isLoading = true;
-        console.log('Pago de renovación verificado con éxito de forma simulada.');
 
-        // Simulamos la actualización del estado de la suscripción en base de datos
+        try {
+          // 1. Recuperamos el ID de la empresa guardado previamente en la sesión
+          const empresaId = sessionStorage.getItem('empresa_id');
+          const nombreEmpresa = sessionStorage.getItem('nombre_empresa');
 
-        setTimeout(() => {
+          if (!empresaId) {
+            throw new Error('No se encontró el identificador de la empresa en la sesión actual.');
+          }
+
+          // 2. Ejecutamos la reactivación real en Cloud Firestore
+          await this.authService.reactivarEmpresa(empresaId);
+          console.log(`Empresa ${empresaId} - "${nombreEmpresa}" reactivada exitosamente en base de datos.`);
+
           this.isLoading = false;
 
+          // 3. Notificación de éxito rotundo
           Swal.fire({
             icon: 'success',
             title: '¡Suscripción Renovada!',
@@ -51,9 +63,22 @@ export class SubExpiradaComunicadoComponent {
             confirmButtonColor: '#3287bd'
           }).then(() => {
             this.dialogRef.close();
+            sessionStorage.clear();
             this.router.navigate(['/login']);
           });
-        }, 1500);
+
+        } catch (error) {
+          this.isLoading = false;
+          console.error('Error al procesar la renovación en la base de datos:', error);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error de activación',
+            text: 'El pago se procesó, pero ocurrió un problema al activar tu suscripción en el sistema. Por favor, contacta a soporte.',
+            confirmButtonColor: '#ef4444'
+          });
+        }
+
       } else {
         Swal.fire({
           icon: 'warning',

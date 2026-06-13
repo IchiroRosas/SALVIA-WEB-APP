@@ -21,13 +21,21 @@ export interface UsuarioLogeadoDto {
   rol: string;
   activo: boolean;
   empresa_id: string;
-  nombre_empresa: string;
 }
 
 export interface SessionStorageInfo{
+  user_uid: string;
   nombre_user: string;
   correo_user: string;
+  empresa_id: string;
   nombre_empresa: string;
   rol: string;
-  activo: string;
+}
+
+export interface EmpresaAsociadaDto {
+  activo: boolean;
+  fecha_registro: Date;
+  fecha_ultimo_pago: Date;
+  nombre_empresa: string;
+  ruc: string;
 }

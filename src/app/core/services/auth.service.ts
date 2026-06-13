@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc, serverTimestamp } from '@angular/fire/firestore';
-import { UsuarioLogeadoDto, UsuarioRegistroDto } from '../../shared/models/dto';
-import {Router} from '@angular/router';
+import { Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc } from '@angular/fire/firestore';
+import { EmpresaAsociadaDto, UsuarioLogeadoDto, UsuarioRegistroDto } from '../../shared/models/dto';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -101,10 +101,10 @@ export class AuthService {
   }
 
   // 9 - OBTENER EMPRESA POR SU UID
-  async obtenerDatosEmpresa(empresaId: string): Promise<any | null> {
+  async obtenerDatosEmpresaAsociada(empresaId: string): Promise<EmpresaAsociadaDto | null> {
     const docRef = doc(this.firestore, 'empresas', empresaId);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
+    return docSnap.exists() ? (docSnap.data() as EmpresaAsociadaDto) : null;
   }
 
   // 10 - CERRAR SESIÓN
@@ -112,6 +112,19 @@ export class AuthService {
     sessionStorage.clear();
     this.router.navigate(['/login']);
     return signOut(this.auth);
+  }
+
+  // 11 - DESACTIVA UNA EMPRESA - SE USARÁ PARA CUANDO UNA SUSCRIPCIÓN ESTÉ VENCIDA (>30 DIAS DESDE ULTIMO PAGO)
+  async desactivarEmpresa(empresaId: string): Promise<void> {
+    const docRef = doc(this.firestore, 'empresas', empresaId);
+    // updateDoc solo modifica el campo seleccionado sin borrar el resto del documento
+    return updateDoc(docRef, { activo: false });
+  }
+
+  // 12 - REACTIVAR UNA CUENTA DE EMPRESA - SE USARÁ PARA CUANDO UNA SUSCRIPCIÓN VUELVA A ESTAR VIGENTE
+  async reactivarEmpresa(empresaId: string): Promise<void> {
+    const docRef = doc(this.firestore, 'empresas', empresaId);
+    return updateDoc(docRef, { activo: true, fecha_ultimo_pago: serverTimestamp() });
   }
 
 }
