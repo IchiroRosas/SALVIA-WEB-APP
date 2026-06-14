@@ -151,15 +151,15 @@
     border-color: var(--color-secondary);
 }
 
-/* UID lectura */
-.uid-wrapper {
+/* RUC lectura */
+.ruc-wrapper {
     display: flex;
     align-items: center;
     width: 100%;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.uid-wrapper input.input-readonly {
+.ruc-wrapper input.input-readonly {
     flex: 1;
     border-bottom: none;
     color: var(--color-secondary);

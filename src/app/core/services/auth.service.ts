@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc } from '@angular/fire/firestore';
-import { EmpresaAsociadaDto, UsuarioLogeadoDto, UsuarioRegistroDto } from '../../shared/models/dto';
+import { Firestore, doc, addDoc, setDoc, getDoc, getDocs, serverTimestamp, updateDoc, collection, query, where } from '@angular/fire/firestore';
+import { EmpresaAsociadaDto, UsuarioLogeadoDto, UsuarioRegistroCompletoDto, UsuarioRegistroDto } from '../../shared/models/dto';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -14,8 +14,8 @@ export class AuthService {
   private router = inject(Router);
 
   // 1 - REGISTRO DE EMPRESA
-  guardarEmpresa(idEmpresa: string, razonSocial: string, ruc: string): Promise<void> {
-    const docRef = doc(this.firestore, 'empresas', idEmpresa);
+  guardarEmpresa(razonSocial: string, ruc: string): Promise<any> {
+    const empresasRef = collection(this.firestore, 'empresas');
 
     const dataEmpresa = {
       activo: true,
@@ -25,7 +25,7 @@ export class AuthService {
       ruc: ruc
     };
 
-    return setDoc(docRef, dataEmpresa);
+    return addDoc(empresasRef, dataEmpresa);
   }
 
   // 2 - VERIFICACIÓN DE EMPRESA
@@ -36,35 +36,60 @@ export class AuthService {
   }
 
   // 3 - REGISTRO TRADICIONAL CON EMAIL Y CONTRASEÑA
-  async registrarConEmail(datos: any): Promise<void> {
-    const userCredential = await createUserWithEmailAndPassword(this.auth, datos.correo, datos.password);
-    const uidAuth = userCredential.user.uid;
+  async registrarConEmail(datosFormulario: UsuarioRegistroCompletoDto): Promise<void> {
 
-    await this.guardarUsuarioEnFirestore(
-      uidAuth,
-      {
-        nombre: datos.nombreCompleto,
-        correo: datos.correo,
-        empresaId: datos.uid,
-        rol: datos.rol
+    //YA EXISTE EN ESTA EMPRESA
+    const yaExisteEnEmpresa = await this.comprobarUsuarioRegistrado(datosFormulario.correo, datosFormulario.empresaUidReal);
+    if (yaExisteEnEmpresa) {
+      throw { code: 'auth/user-already-registered' };
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(this.auth, datosFormulario.correo, datosFormulario.password);
+      const uidAuth = userCredential.user.uid;
+
+      await this.guardarUsuarioEnFirestore(uidAuth, {
+        nombre: datosFormulario.nombreCompleto,
+        correo: datosFormulario.correo,
+        empresaId: datosFormulario.empresaUidReal,
+        rol: datosFormulario.rol
+      });
+    } catch (error: any) {
+      // ESCENARIO B: El correo ya existe en Firebase Auth asignado a OTRA empresa
+      if (error.code === 'auth/email-already-in-use') {
+        throw { code: 'auth/email-used-in-other-company' };
       }
-    );
+    }
   }
 
   // 4 - REGISTRO CON GOOGLE
-  async registrarConGoogle(datosFormulario: any): Promise<void> {
+  async registrarConGoogle(datosFormulario: UsuarioRegistroCompletoDto): Promise<void> {
     const provider = new GoogleAuthProvider();
-
+    provider.setCustomParameters({ prompt: 'select_account' });
     const userCredential = await signInWithPopup(this.auth, provider);
     const uidAuth = userCredential.user.uid;
     const correoGoogle = userCredential.user.email ?? '';
 
+    // EXISTE EN ESTA EMPRESA
+    const yaExisteEnEmpresa = await this.comprobarUsuarioRegistrado(correoGoogle, datosFormulario.empresaUidReal);
+    if (yaExisteEnEmpresa) {
+      throw { code: 'auth/user-already-registered' };
+    }
+
+    // EXISTE EN ALGUNA OTRA EMPRESA
+    const perfilExistente = await this.obtenerPerfilUsuario(uidAuth);
+    if (perfilExistente) {
+      // Si el perfil existe, significa que es de otra empresa. Frenamos el registro para no chancar los datos.
+      throw { code: 'auth/email-used-in-other-company' };
+    }
+
     await this.guardarUsuarioEnFirestore(uidAuth, {
       nombre: datosFormulario.nombreCompleto,
       correo: correoGoogle,
-      empresaId: datosFormulario.uid,
+      empresaId: datosFormulario.empresaUidReal,
       rol: datosFormulario.rol
     });
+
   }
 
   // 5 - REGISTRO DE USUARIO EN FIRESTORE
@@ -90,6 +115,7 @@ export class AuthService {
   // 7 - LOGIN CON GOOGLE
   loginConGooglePopup() {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     return signInWithPopup(this.auth, provider);
   }
 
@@ -125,6 +151,31 @@ export class AuthService {
   async reactivarEmpresa(empresaId: string): Promise<void> {
     const docRef = doc(this.firestore, 'empresas', empresaId);
     return updateDoc(docRef, { activo: true, fecha_ultimo_pago: serverTimestamp() });
+  }
+
+  // 13 - COMPROBAR SI UN USUARIO YA ESTA REGISTRADO EN SALVIA POR SU CORREO
+  async comprobarUsuarioRegistrado(correo: string, empresaId: string): Promise<boolean> {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(
+      usersRef,
+      where('correo_user', '==', correo),
+      where('empresa_id', '==', empresaId)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  }
+
+  // 14 - OBTENER EMPRESA POR RUC y RETORNAR SU ID (SE USARÁ EN EL REGISTRO DE EMPLEADOS PARA ASOCIARLOS A LA EMPRESA CORRECTA)
+  async obtenerIdEmpresaPorRuc(ruc: string): Promise<string | null> {
+    const empresasRef = collection(this.firestore, 'empresas');
+    const q = query(empresasRef, where('ruc', '==', ruc), where('activo', '==', true));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      // Retornamos el ID del primer documento encontrado que coincida con ese RUC
+      return querySnapshot.docs[0].id;
+    }
+    return null;
   }
 
 }

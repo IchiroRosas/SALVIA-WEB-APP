@@ -107,11 +107,10 @@ export class LoginComponent implements OnInit {
 
       // PASO C: Mapear y guardar temporalmente en el SessionStorage los datos requeridos por el sistema
       const infoSesion: SessionStorageInfo = {
-        user_uid: userUid,
         nombre_user: perfilUsuario.nombre_user,
         correo_user: perfilUsuario.correo_user,
         rol: perfilUsuario.rol,
-        empresa_id: perfilUsuario.empresa_id,
+        empresa_ruc: datosEmpresa.ruc,
         nombre_empresa: datosEmpresa.nombre_empresa
       };
 
@@ -173,10 +172,9 @@ export class LoginComponent implements OnInit {
   }
 
   llenarSessionStorage(usuarioLogeado: SessionStorageInfo) {
-    sessionStorage.setItem('user_uid', usuarioLogeado.user_uid || '');
     sessionStorage.setItem('nombre_user', usuarioLogeado.nombre_user || '');
     sessionStorage.setItem('correo_user', usuarioLogeado.correo_user || '');
-    sessionStorage.setItem('empresa_id', usuarioLogeado.empresa_id || '');
+    sessionStorage.setItem('empresa_ruc', usuarioLogeado.empresa_ruc || '');
     sessionStorage.setItem('nombre_empresa', usuarioLogeado.nombre_empresa || '');
     sessionStorage.setItem('rol', usuarioLogeado.rol || '');
   }

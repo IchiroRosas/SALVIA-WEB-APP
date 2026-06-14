@@ -24,10 +24,9 @@ export interface UsuarioLogeadoDto {
 }
 
 export interface SessionStorageInfo{
-  user_uid: string;
   nombre_user: string;
   correo_user: string;
-  empresa_id: string;
+  empresa_ruc: string;
   nombre_empresa: string;
   rol: string;
 }
@@ -38,4 +37,13 @@ export interface EmpresaAsociadaDto {
   fecha_ultimo_pago: Date;
   nombre_empresa: string;
   ruc: string;
+}
+
+export interface UsuarioRegistroCompletoDto{
+  ruc: string;
+  empresaUidReal: string;
+  nombreCompleto: string;
+  rol: string;
+  correo: string;
+  password: string;
 }
