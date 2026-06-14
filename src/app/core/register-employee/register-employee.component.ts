@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { AuthService } from '../services/auth.service';
+import { UsuarioRegistroCompletoDto } from '../../shared/models/dto';
 
 @Component({
   selector: 'app-register-employee',
@@ -26,7 +27,7 @@ export class RegisterEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     this.empleadoForm = this.fb.group({
-      uid: ['', [Validators.required, Validators.maxLength(20)]],
+      ruc: ['', [Validators.required, Validators.pattern('^[0-9]{11}$')]],
       nombreCompleto: ['', [Validators.required, Validators.minLength(4)]],
       rol: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
@@ -58,39 +59,31 @@ export class RegisterEmployeeComponent implements OnInit {
 
   async ejecutarRegistro(): Promise<void> {
     if (this.empleadoForm.invalid) return;
-    const correoControl = this.empleadoForm.get('correo');
 
     this.isLoading = true;
     this.errorMessage = null;
-    const datosUsuario = this.empleadoForm.value;
+    const datosFormulario = this.empleadoForm.value;
 
     try {
-      const empresaExiste = await this.authService.verificarEmpresaExiste(datosUsuario.uid);
+      const empresaUidReal = await this.authService.obtenerIdEmpresaPorRuc(datosFormulario.ruc);
 
-      if (!empresaExiste) {
+      if (!empresaUidReal) {
         this.isLoading = false;
         Swal.fire({
           icon: 'error',
           title: 'Empresa no encontrada',
-          text: 'El UID ingresado no corresponde a ninguna empresa registrada en Salvia.',
+          text: 'El RUC ingresado no corresponde a ninguna empresa registrada en Salvia.',
           confirmButtonColor: '#ef4444'
         });
         return;
       }
 
-      if (this.metodoRegistro === 'tradicional') {
-        const usuarioYaRegistrado = await this.authService.comprobarUsuarioRegistrado(correoControl?.value, datosUsuario.uid);
-
-        if (usuarioYaRegistrado) {
-          this.isLoading = false;
-          throw { code: 'auth/user-already-registered' };
-        }
-      }
+      const datosUsuarioFinal: UsuarioRegistroCompletoDto = {...datosFormulario, empresaUidReal: empresaUidReal };
 
       if (this.metodoRegistro === 'tradicional') {
-        await this.authService.registrarConEmail(datosUsuario);
+        await this.authService.registrarConEmail(datosUsuarioFinal);
       } else {
-        await this.authService.registrarConGoogle(datosUsuario);
+        await this.authService.registrarConGoogle(datosUsuarioFinal);
       }
 
       this.isLoading = false;
@@ -98,7 +91,7 @@ export class RegisterEmployeeComponent implements OnInit {
       Swal.fire({
         icon: 'success',
         title: '¡Usuario Registrado!',
-        text: `El perfil fue guardado con éxito bajo el rol de "${datosUsuario.rol}".`,
+        text: `El perfil fue guardado con éxito bajo el rol de "${datosFormulario.rol}".`,
         confirmButtonColor: '#3287bd'
       }).then(() => this.volver());
 
@@ -106,11 +99,19 @@ export class RegisterEmployeeComponent implements OnInit {
       this.isLoading = false;
       console.error('Error durante el registro:', error);
 
-      if (error.code === 'auth/email-already-in-use' || error.code === 'auth/user-already-registered') {
-        this.errorMessage = 'Esta cuenta (correo o perfil de Google) ya se encuentra registrada bajo el UID de esta empresa.';
-      } else if (error.code === 'auth/popup-closed-by-user') {
+      if (error.code === 'auth/user-already-registered') {
+        this.errorMessage = 'Este correo electrónico ya se encuentra registrado y activo en esta empresa.';
+      } 
+      else if (error.code === 'auth/email-used-in-other-company') {
+        this.errorMessage = 'Esta cuenta ya está vinculada a otra empresa en Salvia. Por favor, utilice un correo diferente para esta empresa.';
+      } 
+      else if (error.code === 'auth/popup-closed-by-user') {
         this.errorMessage = 'Se cerró la ventana de autenticación de Google.';
-      } else {
+      } 
+      else if (error.code === 'auth/weak-password') {
+        this.errorMessage = 'La contraseña es demasiado débil. Debe contener al menos 6 caracteres.';
+      } 
+      else {
         this.errorMessage = 'Ocurrió un error inesperado en el servidor. Inténtalo de nuevo.';
       }
 
@@ -120,6 +121,7 @@ export class RegisterEmployeeComponent implements OnInit {
         text: this.errorMessage,
         confirmButtonColor: '#ff4d4d'
       });
+
     }
   }
 

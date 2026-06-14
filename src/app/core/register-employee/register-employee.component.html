@@ -21,12 +21,12 @@
     <form [formGroup]="empleadoForm" (ngSubmit)="ejecutarRegistro()">
       
       <div class="input-group">
-        <label for="uid">UID de su empresa</label>
-        <div class="uid-wrapper">
-          <input type="text" id="uid" formControlName="uid" maxlength="20" placeholder="Escriba el UID de su empresa...">
+        <label for="ruc">RUC de su empresa</label>
+        <div class="ruc-wrapper">
+          <input type="text" id="ruc" formControlName="ruc" maxlength="11" placeholder="Escriba el RUC de su empresa...">
         </div>
-        @if (empleadoForm.controls['uid'].invalid && empleadoForm.controls['uid'].touched) {
-          <div class="error-message"><span>El UID de la empresa es obligatorio.</span></div>
+        @if (empleadoForm.controls['ruc'].invalid && empleadoForm.controls['ruc'].touched) {
+          <div class="error-message"><span>El RUC de la empresa es obligatorio.</span></div>
         }
       </div>
 
