@@ -25,7 +25,6 @@ export class RegisterEmployeeComponent implements OnInit {
   metodoRegistro: 'tradicional' | 'google' = 'tradicional';
 
   ngOnInit(): void {
-
     this.empleadoForm = this.fb.group({
       uid: ['', [Validators.required, Validators.maxLength(20)]],
       nombreCompleto: ['', [Validators.required, Validators.minLength(4)]],
@@ -59,6 +58,7 @@ export class RegisterEmployeeComponent implements OnInit {
 
   async ejecutarRegistro(): Promise<void> {
     if (this.empleadoForm.invalid) return;
+    const correoControl = this.empleadoForm.get('correo');
 
     this.isLoading = true;
     this.errorMessage = null;
@@ -76,6 +76,15 @@ export class RegisterEmployeeComponent implements OnInit {
           confirmButtonColor: '#ef4444'
         });
         return;
+      }
+
+      if (this.metodoRegistro === 'tradicional') {
+        const usuarioYaRegistrado = await this.authService.comprobarUsuarioRegistrado(correoControl?.value, datosUsuario.uid);
+
+        if (usuarioYaRegistrado) {
+          this.isLoading = false;
+          throw { code: 'auth/user-already-registered' };
+        }
       }
 
       if (this.metodoRegistro === 'tradicional') {
@@ -97,8 +106,8 @@ export class RegisterEmployeeComponent implements OnInit {
       this.isLoading = false;
       console.error('Error durante el registro:', error);
 
-      if (error.code === 'auth/email-already-in-use') {
-        this.errorMessage = 'El correo electrónico ya se encuentra registrado.';
+      if (error.code === 'auth/email-already-in-use' || error.code === 'auth/user-already-registered') {
+        this.errorMessage = 'Esta cuenta (correo o perfil de Google) ya se encuentra registrada bajo el UID de esta empresa.';
       } else if (error.code === 'auth/popup-closed-by-user') {
         this.errorMessage = 'Se cerró la ventana de autenticación de Google.';
       } else {

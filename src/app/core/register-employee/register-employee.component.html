@@ -68,12 +68,6 @@
         </div>
       }
 
-      @if (errorMessage) {
-        <div class="general-error">
-          {{ errorMessage }}
-        </div>
-      }
-
       <div class="actions-container">
         <button type="submit" class="btn-primary" [disabled]="empleadoForm.invalid || isLoading">
           @if (isLoading) {

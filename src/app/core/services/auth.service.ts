@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc, serverTimestamp, updateDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, getDoc, getDocs, serverTimestamp, updateDoc } from '@angular/fire/firestore';
 import { EmpresaAsociadaDto, UsuarioLogeadoDto, UsuarioRegistroDto } from '../../shared/models/dto';
 import { Router } from '@angular/router';
+import { collection, query, where } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -54,10 +55,15 @@ export class AuthService {
   // 4 - REGISTRO CON GOOGLE
   async registrarConGoogle(datosFormulario: any): Promise<void> {
     const provider = new GoogleAuthProvider();
-
+    provider.setCustomParameters({ prompt: 'select_account' });
     const userCredential = await signInWithPopup(this.auth, provider);
     const uidAuth = userCredential.user.uid;
     const correoGoogle = userCredential.user.email ?? '';
+
+    const yaExisteEnEmpresa = await this.comprobarUsuarioRegistrado(correoGoogle, datosFormulario.uid);
+    if (yaExisteEnEmpresa) {
+      throw { code: 'auth/user-already-registered' };
+    }
 
     await this.guardarUsuarioEnFirestore(uidAuth, {
       nombre: datosFormulario.nombreCompleto,
@@ -90,6 +96,7 @@ export class AuthService {
   // 7 - LOGIN CON GOOGLE
   loginConGooglePopup() {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     return signInWithPopup(this.auth, provider);
   }
 
@@ -125,6 +132,18 @@ export class AuthService {
   async reactivarEmpresa(empresaId: string): Promise<void> {
     const docRef = doc(this.firestore, 'empresas', empresaId);
     return updateDoc(docRef, { activo: true, fecha_ultimo_pago: serverTimestamp() });
+  }
+
+  // 13 - COMPROBAR SI UN USUARIO YA ESTA REGISTRADO EN SALVIA POR SU CORREO
+  async comprobarUsuarioRegistrado(correo: string, empresaId: string): Promise<boolean> {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(
+      usersRef,
+      where('correo_user', '==', correo),
+      where('empresa_id', '==', empresaId)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
   }
 
 }
