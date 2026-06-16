@@ -1,1 +1,85 @@
-<p>activate-user works!</p>
+<div class="login-container">
+  <div class="login-box">
+    <div class="logo">
+      <img src="/logo-salvia-2.png" alt="Salvia Logo">
+      <h2 class="form-title">Activar cuenta</h2>
+    </div>
+
+    <div class="method-selector">
+      <button type="button" 
+              [class.active]="metodoRegistro === 'tradicional'" 
+              (click)="cambiarMetodo('tradicional')">
+        Tradicional
+      </button>
+      <button type="button" 
+              [class.active]="metodoRegistro === 'google'" 
+              (click)="cambiarMetodo('google')">
+        Google G
+      </button>
+    </div>
+
+    <form [formGroup]="activarForm" (ngSubmit)="ejecutarActivacion()">
+      
+      <div class="input-group">
+        <label for="ruc">RUC de la empresa</label>
+        <div class="ruc-wrapper">
+          <input type="text" id="ruc" formControlName="ruc" maxlength="11" placeholder="Escriba el RUC empresarial...">
+        </div>
+        @if (activarForm.controls['ruc'].invalid && activarForm.controls['ruc'].touched) {
+          <div class="error-message"><span>El RUC debe tener 11 dígitos numéricos.</span></div>
+        }
+      </div>
+
+      @if (metodoRegistro === 'tradicional') {
+        <div class="input-group animate-fade">
+          <label for="correo">Correo Electrónico</label>
+          <input type="email" id="correo" placeholder="ejemplo@salvia.com" formControlName="correo">
+          @if (activarForm.controls['correo'].invalid && activarForm.controls['correo'].touched) {
+            <div class="error-message"><span>Formato de correo electrónico inválido.</span></div>
+          }
+        </div>
+
+        <div class="input-group animate-fade">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="Mínimo 6 caracteres..." formControlName="password">
+          @if (activarForm.controls['password'].invalid && activarForm.controls['password'].touched) {
+            <div class="error-message"><span>Contraseña requerida (mínimo 6 caracteres).</span></div>
+          }
+        </div>
+
+        <div class="input-group animate-fade">
+          <label for="confirmPassword">Confirmar Contraseña</label>
+          <input type="password" id="confirmPassword" placeholder="Repita la contraseña..." formControlName="confirmPassword">
+          @if (activarForm.controls['confirmPassword'].touched && (activarForm.controls['confirmPassword'].invalid || activarForm.hasError('mismatch'))) {
+            <div class="error-message">
+              <span>
+                @if (activarForm.controls['confirmPassword'].hasError('required')) {
+                  Confirmar la contraseña es obligatorio.
+                } @else if (activarForm.hasError('mismatch')) {
+                  Las contraseñas no coinciden.
+                }
+              </span>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="actions-container">
+        <button type="submit" class="btn-primary" [disabled]="activarForm.invalid || isLoading">
+          @if (isLoading) {
+            <strong>Procesando...</strong>
+          } @else {
+            <strong>
+              {{ metodoRegistro === 'tradicional' ? 'Activar Cuenta' : 'Activar con Google' }}
+            </strong>
+          }
+        </button>
+        
+        <button type="button" class="btn-primary btn-back" (click)="irAlLogin()">
+          <strong>Volver</strong>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

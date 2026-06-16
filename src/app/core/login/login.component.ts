@@ -91,7 +91,7 @@ export class LoginComponent implements OnInit {
       if (!perfilUsuario.activo) {
         await this.authService.cerrarSesion();
         this.isLoading = false;
-        this.mostrarToastError('Su cuenta de usuario ha sido suspendida.');
+        this.mostrarToastError('Su usuario ha sido dado de baja.');
         return;
       }
 
@@ -215,6 +215,14 @@ export class LoginComponent implements OnInit {
 
   irARegistrarEmpleado() {
     this.router.navigate(['/registrar-empleado']);
+  }
+
+  irRegistrarEmpresaPrimerAdminUser() {
+    this.router.navigate(['/registro-empresa-primer-admin']);
+  }
+
+  irActivarCuenta(){
+    this.router.navigate(['/activar-cuenta']);
   }
 
 }
