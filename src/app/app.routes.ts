@@ -19,14 +19,6 @@ export const routes: Routes = [
         loadComponent: () => import('./core/activate-user/activate-user.component').then(m => m.ActivateUserComponent)
     },
     {
-        path: 'registrar-empresa',
-        loadComponent: () => import('./core/register-company/register-company.component').then(m => m.RegisterCompanyComponent)
-    },
-    {
-        path: 'registrar-empleado',
-        loadComponent: () => import('./core/register-employee/register-employee.component').then(m => m.RegisterEmployeeComponent)
-    },
-    {
         path: 'menu-principal',
         loadComponent: () => import('./features/main/main.component').then(m => m.MainComponent)
     },
