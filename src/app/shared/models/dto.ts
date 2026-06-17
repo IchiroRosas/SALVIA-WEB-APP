@@ -47,3 +47,11 @@ export interface UsuarioRegistroCompletoDto{
   correo: string;
   password: string;
 }
+
+export interface UsuarioListadoDto {
+  uid: string;
+  nombre: string;
+  correo: string;
+  rol: string;
+  activo: boolean;
+}

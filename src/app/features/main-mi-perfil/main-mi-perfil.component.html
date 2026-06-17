@@ -1,0 +1,51 @@
+<div class="perfil-card-container">
+  
+  <header class="perfil-header">
+    <div class="header-title-wrapper">
+      <mat-icon class="icon-primary">account_circle</mat-icon>
+      <h2>Mi perfil</h2>
+    </div>
+    <button class="btn-icon-close" (click)="cerrar()" aria-label="Cerrar ventana">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="divider-line"></div>
+
+  <div class="perfil-body">
+    
+    <div class="user-hero-badge">
+      <div class="avatar-fallback">
+        <mat-icon>person</mat-icon>
+      </div>
+      <div class="hero-text">
+        <h3>{{ perfil.nombre_user }}</h3>
+        <span class="badge-role">{{ perfil.rol | uppercase }}</span>
+      </div>
+    </div>
+
+    <div class="info-list-details">
+      
+      <div class="info-row">
+        <span class="info-label">Correo electrónico</span>
+        <span class="info-value">{{ perfil.correo_user }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Empresa</span>
+        <span class="info-value">{{ perfil.nombre_empresa }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">RUC de la empresa</span>
+        <span class="info-value text-monospace">{{ perfil.empresa_ruc }}</span>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="perfil-footer">
+    <button class="btn-action-close" (click)="cerrar()">Entendido</button>
+  </footer>
+
+</div>

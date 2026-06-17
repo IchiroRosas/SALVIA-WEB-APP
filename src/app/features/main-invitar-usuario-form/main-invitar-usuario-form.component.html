@@ -1,0 +1,48 @@
+<div class="form-card-container">
+  
+  <header class="form-header">
+    <div class="header-title">
+      <mat-icon class="icon-primary">person_add_alt</mat-icon>
+      <h2>Nueva Invitación</h2>
+    </div>
+  </header>
+
+  <div class="divider-line"></div>
+
+  <form [formGroup]="invitacionForm" (ngSubmit)="procesarInvitacion()" class="salvia-form">
+    
+    <div class="form-field">
+      <label for="correo">Correo electrónico</label>
+      <input type="email" id="correo" formControlName="correo_user" placeholder="ejemplo@correo.com">
+      @if (invitacionForm.get('correo_user')?.invalid && invitacionForm.get('correo_user')?.touched) {
+        <span class="error-msg">Ingresa un correo electrónico válido.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="nombre">Nombre completo</label>
+      <input type="text" id="nombre" formControlName="nombre_user" placeholder="Nombre y Apellidos">
+      @if (invitacionForm.get('nombre_user')?.invalid && invitacionForm.get('nombre_user')?.touched) {
+        <span class="error-msg">El nombre es requerido (mínimo 3 caracteres).</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="rol">Asignar Rol en el sistema</label>
+      <select id="rol" formControlName="rol">
+        <option value="empleado">Empleado</option>
+        <option value="administrador">Administrador</option>
+      </select>
+    </div>
+
+    <footer class="form-actions">
+      <button type="button" class="btn-cancel" (click)="cancelar()" [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Procesando...' : 'Invitar' }}
+      </button>
+    </footer>
+
+  </form>
+</div>
