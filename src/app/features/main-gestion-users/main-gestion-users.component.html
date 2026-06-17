@@ -1,0 +1,80 @@
+<div class="gestion-card-container">
+  
+  <!-- CABECERA DE LA VENTANA -->
+  <header class="gestion-header">
+    <div class="header-left-group">
+      <mat-icon class="icon-primary">group</mat-icon>
+      <h2>Gestionar Usuarios</h2>
+      
+      <!-- Botón de Invitación Estilizado -->
+      <button class="btn-invite-user" type="button" aria-label="Invitar un nuevo miembro" (click)="invitarUsuario()">
+        <mat-icon>person_add</mat-icon>
+        <span>Invitar usuario</span>
+      </button>
+    </div>
+
+    <button class="btn-icon-close" (click)="cerrar()" aria-label="Cerrar ventana">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="divider-line"></div>
+
+  <!-- CUERPO / TABLA DE USUARIOS -->
+  <div class="gestion-body">
+    
+    @if (isLoading) {
+      <div class="loading-placeholder">
+        <span class="spinner"></span>
+        <p>Cargando lista de usuarios...</p>
+      </div>
+    } @else {
+      <div class="table-responsive-wrapper">
+        <table class="salvia-users-table">
+          <thead>
+            <tr>
+              <th style="width: 50px; text-align: center;">#</th>
+              <th>Nombre del usuario</th>
+              <th style="text-align: center; width: 140px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (usuario of usuariosActivos; track usuario.uid; let idx = $index) {
+              <tr>
+                <td style="text-align: center;" class="text-muted font-monospace">{{ idx + 1 }}</td>
+                <td>
+                  <div class="user-info-cell">
+                    <span class="user-fullname">{{ usuario.nombre }}</span>
+                    <span class="user-role-badge" [class.badge-admin]="usuario.rol !== 'empleado'">
+                      {{ usuario.rol }}
+                    </span>
+                  </div>
+                </td>
+                <td style="text-align: center;">
+                  @if (usuario.rol === 'empleado') {
+                    <button class="btn-action-dismiss" (click)="confirmDarDeBajaUsuario(usuario)">
+                      Dar de baja
+                    </button>
+                  } @else {
+                    <span class="action-restricted" title="Los administradores globales no pueden ser removidos desde este panel">
+                      Restringido
+                    </span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="table-empty-state">
+                  <mat-icon class="empty-icon">supervised_user_circle</mat-icon>
+                  <p>No hay otros usuarios activos registrados en el sistema.</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+
+</div>

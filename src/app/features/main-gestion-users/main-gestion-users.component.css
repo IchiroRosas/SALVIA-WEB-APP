@@ -1,0 +1,244 @@
+:host {
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --primary-blue: #2563eb;
+  --border-color: #e2e8f0;
+  --font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+}
+
+/* Contenedor principal con espaciado consistente */
+.gestion-card-container {
+  font-family: var(--font-family);
+  color: var(--text-main);
+  background-color: var(--bg-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* CABECERA Y BOTÓN DE INVITACIÓN */
+.gestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-left-group h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.icon-primary {
+  color: var(--primary-blue);
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.btn-invite-user {
+  background-color: #eff6ff;
+  color: var(--primary-blue);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-invite-user:hover {
+  background-color: #dbeafe;
+}
+
+.btn-invite-user mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-icon-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-icon-close:hover {
+  background-color: #f1f5f9;
+  color: var(--text-main);
+}
+
+.divider-line {
+  height: 1px;
+  background-color: var(--border-color);
+  width: 100%;
+}
+
+/* CUERPO Y CONTENEDOR DE TABLA */
+.gestion-body {
+  min-height: 160px;
+}
+
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+/* TABLA SALVIA */
+.salvia-users-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.salvia-users-table th {
+  background-color: #f8fafc;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border-color);
+  user-select: none;
+}
+
+.salvia-users-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.salvia-users-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* CELDAS DINÁMICAS */
+.user-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-fullname {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.user-role-badge {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
+.user-role-badge.badge-admin {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* ACCIONES (DAR DE BAJA / RESTRINGIDO) */
+.btn-action-dismiss {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.15);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s ease;
+}
+
+.btn-action-dismiss:hover {
+  background-color: #fee2e2;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.action-restricted {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-style: italic;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+/* LOADING / EMPTY STATES */
+.loading-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.table-empty-state {
+  text-align: center !important;
+  padding: 48px 16px !important;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.table-empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.font-monospace {
+  font-family: monospace, Consolas, sans-serif;
+}
+.text-muted {
+  color: var(--text-muted);
+}

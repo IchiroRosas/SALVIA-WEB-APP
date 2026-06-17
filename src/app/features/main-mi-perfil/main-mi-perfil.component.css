@@ -1,0 +1,172 @@
+:host {
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --primary-blue: #2563eb;
+  --border-color: #e2e8f0;
+  --font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+}
+
+/* Contenedor principal con más padding hacia los bordes */
+.perfil-card-container {
+  font-family: var(--font-family);
+  color: var(--text-main);
+  background-color: var(--bg-card);
+  padding: 24px; /* 🌟 Más espacio interno */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* CABECERA */
+.perfil-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-title-wrapper h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.icon-primary {
+  color: var(--primary-blue);
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.btn-icon-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-icon-close:hover {
+  background-color: #f1f5f9;
+  color: var(--text-main);
+}
+
+.divider-line {
+  height: 1px;
+  background-color: var(--border-color);
+  width: 100%;
+}
+
+/* HERO BADGE */
+.user-hero-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.avatar-fallback {
+  width: 46px;
+  height: 46px;
+  background-color: #eff6ff;
+  color: var(--primary-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-fallback mat-icon {
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.hero-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.badge-role {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+
+/* DETALLES DE FILAS */
+.info-list-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.text-monospace {
+  font-family: monospace, Consolas, sans-serif;
+  letter-spacing: 0.05em;
+}
+
+/* PIE DE DIÁLOGO CENTRADO */
+.perfil-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center; /* 🌟 Botón alineado al centro */
+}
+
+.btn-action-close {
+  background-color: var(--primary-blue);
+  color: #ffffff;
+  border: none;
+  padding: 10px 32px; /* 🌟 Un poco más ancho para que luzca mejor centrado */
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-action-close:hover {
+  background-color: #1d4ed8;
+}

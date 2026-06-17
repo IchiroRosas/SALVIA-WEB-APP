@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GestionUsersComponent } from './gestion-users.component';
+import { MainMiPerfilComponent } from './main-mi-perfil.component';
 
-describe('GestionUsersComponent', () => {
-  let component: GestionUsersComponent;
-  let fixture: ComponentFixture<GestionUsersComponent>;
+describe('MainMiPerfilComponent', () => {
+  let component: MainMiPerfilComponent;
+  let fixture: ComponentFixture<MainMiPerfilComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GestionUsersComponent]
+      imports: [MainMiPerfilComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GestionUsersComponent);
+    fixture = TestBed.createComponent(MainMiPerfilComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
