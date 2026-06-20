@@ -55,3 +55,12 @@ export interface UsuarioListadoDto {
   rol: string;
   activo: boolean;
 }
+
+export interface ProductoSimpleListadoDto {
+  id: string;
+  customId: string;
+  nombre: string;
+  categoria: string;
+  stock: number;
+  precio: number;
+}
