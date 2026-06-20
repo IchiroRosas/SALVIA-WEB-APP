@@ -14,7 +14,6 @@
 
 /* RESET E INTRODUCCIÓN AL LAYOUT */
 .dashboard-layout {
-  min-height: 100vh;
   background-color: var(--bg-main);
   color: var(--text-main);
   font-family: var(--font-family);
@@ -27,7 +26,7 @@
   padding: 13px 24px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 15px;
 }
 
 /* 1. ESTILOS DE LA NAVBAR */
