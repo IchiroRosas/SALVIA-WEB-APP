@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { Firestore, doc, getDoc, collection, addDoc } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, getDocs, collection, addDoc, query, where } from '@angular/fire/firestore';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -91,9 +91,48 @@ export class MainInvitarUsuarioFormComponent implements OnInit {
         rucEstablecido = empresaSnap.data()['ruc'] || 'No especificado';
       }
 
-      // 3. Escritura en Firestore
+      const correoIngresado = this.invitacionForm.value.correo_user;
+
+      /* 2.1. SE VERIFICA que el correo no esté ya registrado en la colección lista_blanca y con estado: pendiente
+      */
       const listaBlancaRef = collection(this.firestore, 'lista_blanca');
-      await addDoc(listaBlancaRef, {
+      const qListaBlanca = query(
+        listaBlancaRef,
+        where('correo_user', '==', correoIngresado),
+        where('estado', '==', 'pendiente')
+      );
+
+      /* 2.2. SE VERIFICA que en la colección de users no exista un documento con el correo_user ingresado
+      */
+      const usersRef = collection(this.firestore, 'users');
+      const qUsers = query(
+        usersRef,
+        where('correo_user', '==', correoIngresado)
+      );
+
+      // 🚀 Ejecutamos ambas consultas en paralelo para optimizar el rendimiento
+      const [snapshotListaBlanca, snapshotUsers] = await Promise.all([
+        getDocs(qListaBlanca),
+        getDocs(qUsers)
+      ]);
+
+      // Si se encuentra un registro en cualquiera de las dos colecciones, bloqueamos el registro
+      if (!snapshotListaBlanca.empty || !snapshotUsers.empty) {
+        Swal.fire({
+          title: 'Correo ya registrado',
+          text: 'El correo ingresado ya está registrado como usuario en Salvia o está pendiente de activación.',
+          icon: 'error',
+          showCancelButton: true,
+          cancelButtonColor: '#64748b',
+          cancelButtonText: 'Entendido',
+          showConfirmButton: false
+        });
+        return;
+      }
+
+      // 3. Escritura en Firestore
+      const listaBlancaRef2 = collection(this.firestore, 'lista_blanca');
+      await addDoc(listaBlancaRef2, {
         correo_user: this.invitacionForm.value.correo_user,
         empresa_id: this.empresaId,
         estado: 'pendiente',
