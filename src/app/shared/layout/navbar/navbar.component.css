@@ -16,7 +16,7 @@
 .navbar {
   background-color: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
-  padding: 20px 24px;
+  padding: 10px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -105,7 +105,7 @@
 }
 
 .user-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: #1e293b;
   /* Color del texto */
