@@ -12,28 +12,11 @@
   --font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
 }
 
-/* RESET E INTRODUCCIÓN AL LAYOUT */
-.dashboard-layout {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  font-family: var(--font-family);
-  box-sizing: border-box;
-}
-
-.dashboard-main {
-  max-w: 1200px;
-  margin: 0 auto;
-  padding: 13px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
 /* 1. ESTILOS DE LA NAVBAR */
 .navbar {
   background-color: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
-  padding: 14px 24px;
+  padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -317,141 +300,6 @@
 .trend-positive {
   color: #16a34a;
 }
-
-/* 5 y 6. ESTRUCTURA DE COLUMNAS PARA MÓDULOS */
-.dashboard-columns-container {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 24px;
-}
-
-@media (min-width: 768px) {
-  .dashboard-columns-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.category-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.column-cards-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-}
-
-.section-title {
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--text-main);
-  white-space: nowrap;
-}
-
-.divider-line {
-  flex-grow: 1;
-  height: 1px;
-  background-color: var(--border-color);
-}
-
-/* TARJETAS */
-.module-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.module-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-}
-
-.module-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background-color: #eff6ff;
-  color: var(--primary-light-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.module-svg {
-  width: 22px;
-  height: 22px;
-}
-
-.module-body {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 14px;
-}
-
-.title-with-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.module-name {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.badge-alert {
-  background-color: var(--primary-blue);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 20px;
-}
-
-.module-desc {
-  margin: 0;
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.module-footer {
-  margin-top: 24px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--primary-blue);
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.module-footer .arrow {
-  transition: transform 0.15s ease;
-}
-
-.module-card:hover .module-footer .arrow {
-  transform: translateX(4px);
-}
-
 
 /* ======================================================================= */
 /* 🌟 ESTILOS DEL DROPDOWN MENU (NAVBAR)                                   */
