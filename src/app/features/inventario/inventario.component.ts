@@ -56,28 +56,32 @@ export class InventarioComponent implements OnInit { // 🌟 Buena práctica: ag
     switch (this.activeTab) {
       case 'simples':
         this.dialog.open(AgregarProdSimpleComponent, {
-          width: '500px',
+          width: '60vw',
+          maxWidth: 'none',
           disableClose: true
         });
         break;
 
       case 'compuestos':
         this.dialog.open(AgregarProdCompuestoComponent, {
-          width: '500px',
+          width: '60vw',
+          maxWidth: 'none',
           disableClose: true
         });
         break;
 
       case 'promociones':
         this.dialog.open(AgregarPromocionComponent, {
-          width: '500px',
+          width: '60vw',
+          maxWidth: 'none',
           disableClose: true
         });
         break;
 
       case 'recursos':
         this.dialog.open(AgregarProdRecursoComponent, {
-          width: '500px',
+          width: '60vw',
+          maxWidth: 'none',
           disableClose: true
         });
         break;

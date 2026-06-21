@@ -53,10 +53,6 @@ export const routes: Routes = [
                 ]
             },
             {
-                path: 'nuevo-producto', // 🌟 Tu nuevo módulo de abarrotes integrado al layout
-                loadComponent: () => import('./features/nuevo-producto/nuevo-producto.component').then(m => m.NuevoProductoComponent)
-            },
-            {
                 path: 'registrar-compra',
                 loadComponent: () => import('./features/registrar-compra/registrar-compra.component').then(m => m.RegistrarCompraComponent)
             },

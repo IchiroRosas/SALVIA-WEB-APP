@@ -9,6 +9,7 @@ import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { MainMiPerfilComponent } from '../main-mi-perfil/main-mi-perfil.component';
 import { MainGestionUsersComponent } from '../main-gestion-users/main-gestion-users.component';
 import Swal from 'sweetalert2';
+import { AgregarProdSimpleComponent } from '../inventario-tipo-producto/producto-simple/popups-crud-producto-simple/agregar-prod-simple/agregar-prod-simple.component';
 
 @Component({
   selector: 'app-main',
@@ -115,5 +116,14 @@ export class MainComponent implements OnInit {
       }
     });
   }
-  
+
+  mostrarAgregarProdSimple(): void {
+    this.dialog.open(AgregarProdSimpleComponent, {
+      width: '60vw',
+      maxWidth: 'none',
+      disableClose: true
+    });
+
+  }
+
 }

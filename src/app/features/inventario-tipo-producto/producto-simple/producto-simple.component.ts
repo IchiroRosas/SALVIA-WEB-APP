@@ -1,15 +1,19 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Firestore, collection, collectionData, query, where, doc, docData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, query, where, doc, docData, updateDoc } from '@angular/fire/firestore';
 import { Auth, user } from '@angular/fire/auth';
 import { Observable, combineLatest, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { ProductoSimpleDb, ProductoSimpleListadoDto } from '../../../shared/models/dto'; // Ajusta la ruta de importación
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ActualizarProdSimpleComponent } from './popups-crud-producto-simple/actualizar-prod-simple/actualizar-prod-simple.component';
+import Swal from 'sweetalert2';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-producto-simple',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatDialogModule],
   templateUrl: './producto-simple.component.html',
   styleUrls: ['./producto-simple.component.css']
 })
@@ -17,6 +21,9 @@ import { ProductoSimpleDb, ProductoSimpleListadoDto } from '../../../shared/mode
 export class ProductoSimpleComponent implements OnInit {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
+  private dialog = inject(MatDialog);
+  private toastr = inject(ToastrService);
+
   rolUsuario: string | null = null;
   productosMapeados$!: Observable<ProductoSimpleListadoDto[]>;
 
@@ -72,11 +79,46 @@ export class ProductoSimpleComponent implements OnInit {
     return this.rolUsuario === 'administrador';
   }
 
-  editarProducto(id: string) {
-    console.log('Editar producto con ID:', id);
+  editarProducto(id: string): void {
+    this.dialog.open(ActualizarProdSimpleComponent, {
+      width: '60vw',
+      maxWidth: 'none',
+      disableClose: true,
+      data: { idProducto: id }
+    });
   }
 
-  eliminarProducto(id: string) {
-    console.log('Eliminar producto con ID:', id);
+  eliminarProdSimple(id: string): void {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Este producto ya no estará disponible para la venta.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb', // Color azul primario de tu paleta
+      cancelButtonColor: '#64748b',  // Color gris de tu paleta
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true           // Mantiene una jerarquía visual limpia en Windows/Web
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Apuntamos al documento exacto en Firestore
+          const prodDocRef = doc(this.firestore, 'productos_simples', id);
+
+          // Hacemos el borrado lógico cambiando 'activo' a false
+          await updateDoc(prodDocRef, { activo: false });
+
+          // Lanzamos el toast de éxito cortito
+          this.toastr.success('El producto fue eliminado con éxito.', '¡Eliminado!', {
+            timeOut: 2500,
+            progressBar: true
+          });
+
+        } catch (error) {
+          console.error('Error al ocultar el producto:', error);
+          this.toastr.error('No se pudo eliminar el producto en este momento.', 'Error');
+        }
+      }
+    });
   }
 }
