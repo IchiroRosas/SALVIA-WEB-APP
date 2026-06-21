@@ -1,7 +1,7 @@
 .inventory-wrapper {
   max-width: 1600px;          
   margin: 0 auto;             
-  padding: 5px 20px;        
+  padding: 20px 20px 5px 20px;        
   box-sizing: border-box;
   min-height: 100%;           
 }
@@ -373,4 +373,32 @@
   color: #cbd5e1;
   cursor: not-allowed;
   background-color: #f8fafc;
+}
+
+/* Botón Volver */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-back:hover {
+  background-color: #f9fafb;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+.icon-back {
+  width: 16px;
+  height: 16px;
 }

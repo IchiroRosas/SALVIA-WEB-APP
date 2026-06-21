@@ -8,6 +8,7 @@
       <th>STOCK</th>
       <th>UND. MEDIDA</th>
       <th>PRECIO VENTA</th>
+      <th>PRECIO COMPRA</th>
       <th class="text-center">ACCIONES</th>
     </tr>
   </thead>
@@ -21,6 +22,7 @@
       <td class="font-semibold">{{ item.stock }}</td>
       <td class="text-muted text-sm">{{ item.unidadMedida }}</td>
       <td class="font-semibold">S/.{{ item.precioVenta | number:'1.2-2' }}</td>
+      <td class="font-semibold">S/.{{ item.precioCompra | number:'1.2-2' }}</td>
       <td>
         @if (esAdmin()){
         <div class="action-buttons">

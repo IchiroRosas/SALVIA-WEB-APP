@@ -66,7 +66,8 @@ export class ProductoSimpleComponent implements OnInit {
                 marca: prod.marca_prod || 'Sin Marca',
                 stock: prod.stock_actual || 0,
                 unidadMedida: prod.unidad_medida || 'N/A',
-                precioVenta: prod.precio_venta_unitario || 0
+                precioVenta: prod.precio_venta_unitario || 0,
+                precioCompra: prod.precio_compra_unitario || 0
               };
             });
           })

@@ -89,4 +89,27 @@ export interface ProductoSimpleListadoDto {
   stock: number;
   unidadMedida: string;
   precioVenta: number;
+  precioCompra: number;
+}
+
+// Modelo exacto de cómo se almacena en Firestore
+export interface ProductoCompuestoDb {
+  activo: boolean;
+  descripcion_prod_comp: string;
+  empresa_id: string;
+  precio_venta_combo: number;
+  productos_componentes:{
+    cantidad_necesaria: number;
+    producto_simple_id: string;
+  }[];
+}   
+
+export interface ProductoCompuestoListadoDto {
+  id: string;
+  nombre: string;
+  precioVentaCombo: number;
+  componentes: {
+    nombreProductoSimple: string;
+    cantidadNecesaria: number;
+  }[];
 }
