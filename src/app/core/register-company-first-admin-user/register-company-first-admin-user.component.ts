@@ -172,6 +172,31 @@ export class RegisterCompanyFirstAdminUserComponent {
         rol: 'administrador'
       });
 
+      // -------------------------------------------------------------------------
+      // 🌟 PASO 4: CREACIÓN DE CATEGORÍAS POR DEFECTO (NUEVO ALCANCE)
+      // -------------------------------------------------------------------------
+      const categoriasPredeterminadas = [
+        'Abarrotes básicos',
+        'Confitería y Snacks',
+        'Frescos',
+        'Bebidas',
+        'Comidas envasadas listas'
+      ];
+
+      const categoriasRef = collection(this.firestore, 'categorias');
+
+      // Mapeamos los textos a un arreglo de promesas addDoc ejecutándose en paralelo
+      const promesasCategorias = categoriasPredeterminadas.map(nombreCat =>
+        addDoc(categoriasRef, {
+          activo: true,
+          empresa_id: idEmpresaGenerado,
+          nombre_categoria: nombreCat
+        })
+      );
+
+      // Esperamos a que las 5 inserciones en Firestore terminen correctamente
+      await Promise.all(promesasCategorias);
+
       // FIN DEL FLUJO EXITOSO
       this.isLoading = false;
       Swal.fire({

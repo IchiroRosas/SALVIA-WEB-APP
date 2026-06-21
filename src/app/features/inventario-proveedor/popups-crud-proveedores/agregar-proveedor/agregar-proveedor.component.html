@@ -1,0 +1,62 @@
+<div class="dialog-container">
+  <header class="dialog-header">
+    <h2>Agregar Nuevo Proveedor</h2>
+    <p>Registra la información de tu proveedor</p>
+  </header>
+
+  <form [formGroup]="proveedorForm" (ngSubmit)="registrar()" class="dialog-form">
+    
+    <div class="form-group">
+      <label for="nombre_proveedor">Nombre / Razón Social *</label>
+      <input 
+        id="nombre_proveedor" 
+        type="text" 
+        formControlName="nombre_proveedor" 
+        placeholder="Ej. Distribuidora Alfa S.A."
+        [class.input-error]="proveedorForm.get('nombre_proveedor')?.invalid && proveedorForm.get('nombre_proveedor')?.touched"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="num_proveedor">Número de Teléfono / Celular *</label>
+      <input 
+        id="num_proveedor" 
+        type="text" 
+        formControlName="num_proveedor" 
+        placeholder="Ej. +51999888777"
+        [class.input-error]="proveedorForm.get('num_proveedor')?.invalid && proveedorForm.get('num_proveedor')?.touched"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="direccion1_prov">Dirección Principal *</label>
+      <input 
+        id="direccion1_prov" 
+        type="text" 
+        formControlName="direccion1_prov" 
+        placeholder="Ej. Av. Las Flores 123"
+        [class.input-error]="proveedorForm.get('direccion1_prov')?.invalid && proveedorForm.get('direccion1_prov')?.touched"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="direccion2_prov">Dirección Secundaria (Opcional)</label>
+      <input 
+        id="direccion2_prov" 
+        type="text" 
+        formControlName="direccion2_prov" 
+        placeholder="Ej. Oficina 4 / Bloque B"
+      />
+    </div>
+
+    <footer class="dialog-actions">
+      <button type="button" class="btn-secondary" (click)="cancelar()" [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="proveedorForm.invalid || isSubmitting">
+        {{ isSubmitting ? 'Guardando...' : 'Registrar' }}
+      </button>
+    </footer>
+
+  </form>
+</div>

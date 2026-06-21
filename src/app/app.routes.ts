@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { IndexComponent } from './shared/layout/index/index.component'; // 🌟 Importamos tu contenedor del Navbar
 
 export const routes: Routes = [
-    
+
     // ==========================================
     // 1. PANTALLAS COMPLETAS (Sin Navbar - Flujo inicial)
     // ==========================================
@@ -37,11 +37,20 @@ export const routes: Routes = [
             },
             {
                 path: 'inventario',
-                loadComponent: () => import('./features/inventario/inventario.component').then(m => m.InventarioComponent)
-            },
-            {
-                path: 'nuevo-producto', // 🌟 Tu nuevo módulo de abarrotes integrado al layout
-                loadComponent: () => import('./features/nuevo-producto/nuevo-producto.component').then(m => m.NuevoProductoComponent)
+                children: [
+                    {
+                        path: '', // 💡 Ruta por defecto: /inventario
+                        loadComponent: () => import('./features/inventario/inventario.component').then(m => m.InventarioComponent)
+                    },
+                    {
+                        path: 'categorias', // 💡 Ruta hija: /inventario/categorias
+                        loadComponent: () => import('./features/inventario-categoria/inventario-categoria.component').then(m => m.InventarioCategoriaComponent)
+                    },
+                    {
+                        path: 'proveedores', // 💡 Ruta hija: /inventario/categorias
+                        loadComponent: () => import('./features/inventario-proveedor/inventario-proveedor.component').then(m => m.InventarioProveedorComponent)
+                    }
+                ]
             },
             {
                 path: 'registrar-compra',

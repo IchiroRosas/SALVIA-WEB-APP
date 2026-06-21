@@ -1,0 +1,105 @@
+.dialog-container {
+  padding: 24px;
+  background-color: #ffffff;
+  font-family: inherit;
+}
+
+.dialog-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.dialog-header p {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 4px 0 0 0;
+}
+
+.dialog-form {
+  margin-top: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.813rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.input-wrapper input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+  color: #111827;
+}
+
+.input-wrapper input:focus {
+  border-color: #2563eb;
+}
+
+.input-wrapper input.input-error {
+  border-color: #ef4444;
+}
+
+.error-text {
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+/* Acciones Footer */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.btn-cancel {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #4b5563;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover:not([disabled]) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.btn-submit {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:hover:not([disabled]) {
+  background-color: #1d4ed8;
+}
+
+.btn-submit:disabled, .btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
