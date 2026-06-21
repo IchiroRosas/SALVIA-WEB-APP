@@ -1,3 +1,7 @@
+// *************************************
+// MÓDULO DE AUTENTICACIÓN Y SEGURIDAD
+// *************************************
+
 export interface EmpresaRegistroDto {
   activo: boolean;
   fecha_registro: Date;
@@ -56,11 +60,33 @@ export interface UsuarioListadoDto {
   activo: boolean;
 }
 
+
+// *************************************
+// INVENTARIO - PRODUCTO SIMPLE
+// *************************************
+
+// Modelo exacto de cómo se almacena en Firestore
+export interface ProductoSimpleDb {
+  id?: string;
+  activo: boolean;
+  descripcion_prod: string;
+  empresa_id: string;
+  id_categoria: string;
+  id_proveedor: string;
+  marca_prod: string;
+  precio_compra_unitario: number;
+  precio_venta_unitario: number;
+  stock_actual: number;
+  unidad_medida: string;
+}
+
+// Estructura limpia adaptada para las columnas de la tabla (DTO)
 export interface ProductoSimpleListadoDto {
   id: string;
-  customId: string;
   nombre: string;
   categoria: string;
+  marca: string;
   stock: number;
-  precio: number;
+  unidadMedida: string;
+  precioVenta: number;
 }

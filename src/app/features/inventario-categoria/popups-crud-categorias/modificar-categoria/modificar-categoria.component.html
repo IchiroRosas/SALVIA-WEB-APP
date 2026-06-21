@@ -1,0 +1,33 @@
+<div class="dialog-container">
+  <header class="dialog-header">
+    <h2>Editar Categoría</h2>
+    <p>Modifica el nombre de la categoría seleccionada</p>
+  </header>
+
+  <form [formGroup]="categoriaForm" (ngSubmit)="modificar()" class="dialog-form">
+    <div class="form-group">
+      <label for="nombre_categoria">Nombre de la Categoría</label>
+      <div class="input-wrapper">
+        <input 
+          id="nombre_categoria"
+          type="text" 
+          formControlName="nombre_categoria" 
+          placeholder="Ej. Bebidas, Limpieza, etc."
+          [class.input-error]="categoriaForm.get('nombre_categoria')?.invalid && categoriaForm.get('nombre_categoria')?.touched"
+        />
+      </div>
+      @if (categoriaForm.get('nombre_categoria')?.invalid && categoriaForm.get('nombre_categoria')?.touched) {
+        <span class="error-text">El nombre es requerido (mínimo 3 caracteres)</span>
+      }
+    </div>
+
+    <footer class="dialog-actions">
+      <button type="button" class="btn-cancel" (click)="cancelar()" [disabled]="isSubmitting">
+        CANCELAR
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="categoriaForm.invalid || isSubmitting">
+        {{ isSubmitting ? 'GUARDANDO...' : 'ACTUALIZAR' }}
+      </button>
+    </footer>
+  </form>
+</div>

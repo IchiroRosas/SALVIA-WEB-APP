@@ -1,0 +1,58 @@
+<div class="dialog-container">
+  <header class="dialog-header">
+    <h2>Modificar Proveedor</h2>
+    <p>Actualiza la información comercial del proveedor seleccionado</p>
+  </header>
+
+  <form [formGroup]="proveedorForm" (ngSubmit)="modificar()" class="dialog-form">
+    
+    <div class="form-group">
+      <label for="nombre_proveedor">Nombre / Razón Social *</label>
+      <input 
+        id="nombre_proveedor" 
+        type="text" 
+        formControlName="nombre_proveedor"
+        [class.input-error]="proveedorForm.get('nombre_proveedor')?.invalid && proveedorForm.get('nombre_proveedor')?.touched"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="num_proveedor">Número de Teléfono / Celular *</label>
+      <input 
+        id="num_proveedor" 
+        type="text" 
+        formControlName="num_proveedor"
+        [class.input-error]="proveedorForm.get('num_proveedor')?.invalid && proveedorForm.get('num_proveedor')?.touched"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="direccion1_prov">Dirección Principal *</label>
+      <input 
+        id="direccion1_prov" 
+        type="text" 
+        formControlName="direccion1_prov"
+        [class.input-error]="proveedorForm.get('direccion1_prov')?.invalid && proveedorForm.get('direccion1_prov')?.touched"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="direccion2_prov">Dirección Secundaria (Opcional)</label>
+      <input 
+        id="direccion2_prov" 
+        type="text" 
+        formControlName="direccion2_prov"
+      />
+    </div>
+
+    <footer class="dialog-actions">
+      <button type="button" class="btn-secondary" (click)="cancelar()" [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="proveedorForm.invalid || isSubmitting">
+        {{ isSubmitting ? 'Actualizando...' : 'Guardar Cambios' }}
+      </button>
+    </footer>
+
+  </form>
+</div>
