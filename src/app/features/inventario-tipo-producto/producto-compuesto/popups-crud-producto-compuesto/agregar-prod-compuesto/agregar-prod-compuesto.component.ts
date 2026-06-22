@@ -7,6 +7,7 @@ import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { Subscription, of } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import Swal from 'sweetalert2';
 
 import { InventarioService } from '../../../../services/inventario.service';
 import { ProductoSimpleDb, ProductoCompuestoDb } from '../../../../../shared/models/dto';
@@ -25,6 +26,7 @@ export class AgregarProdCompuestoComponent implements OnInit {
   private inventarioService = inject(InventarioService);
   private toastr = inject(ToastrService);
   private dialogRef = inject(MatDialogRef<AgregarProdCompuestoComponent>);
+  isSubmitting = false;
 
   form!: FormGroup;
   miEmpresaId: string = '';
@@ -43,11 +45,10 @@ export class AgregarProdCompuestoComponent implements OnInit {
   initForm(): void {
     this.form = this.fb.group({
       descripcion_prod_comp: ['', Validators.required],
-      // Forzamos un mínimo de 0.01 para que el "0" inicial sea inválido obligatoriamente
-      precio_venta_combo: [0, [Validators.required, Validators.min(0.01)]],
-      // 🌟 CORRECCIÓN 1: Quitamos 'Validators.required' de aquí, causaba conflictos de estado.
+      // 🌟 CAMBIO: Permitimos el 0 como mínimo para que no bloquee el inicio del formulario
+      precio_venta_combo: [0, [Validators.required, Validators.min(0)]],
       productos_componentes: this.fb.array([])
-    }, { validators: this.validarPrecioCombo });
+    });
   }
 
   cargarDatosEmpresaYComponentes(): void {
@@ -162,14 +163,38 @@ export class AgregarProdCompuestoComponent implements OnInit {
       return;
     }
 
-    try {
-      const values = this.form.value;
+    const values = this.form.value;
+    const precioVenta = Number(values.precio_venta_combo);
+    const costoAcumulado = this.totalCostoAcumulado;
 
+    // Validación manual de negocio previa al envío
+    if (precioVenta < costoAcumulado) {
+      const confirmacion = await Swal.fire({
+        title: '¿Está seguro de continuar?',
+        text: `El precio de venta (S/.${precioVenta.toFixed(2)}) es menor al costo acumulado total de sus componentes (S/.${costoAcumulado.toFixed(2)}).`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, registrar de todos modos',
+        cancelButtonText: 'No, cancelar y cerrar todo'
+      });
+
+      // Si el usuario cancela, cerramos por completo el popup principal
+      if (!confirmacion.isConfirmed) {
+        this.cerrarModal();
+        return;
+      }
+    }
+
+    // Si pasó la alerta o el precio es correcto, se ejecuta el registro normal
+    this.isSubmitting = true;
+    try {
       const nuevoCombo: ProductoCompuestoDb = {
         activo: true,
         descripcion_prod_comp: values.descripcion_prod_comp,
         empresa_id: this.miEmpresaId,
-        precio_venta_combo: Number(values.precio_venta_combo),
+        precio_venta_combo: precioVenta,
         productos_componentes: values.productos_componentes.map((c: any) => ({
           producto_simple_id: c.producto_simple_id,
           cantidad_necesaria: Number(c.cantidad_necesaria),
@@ -183,6 +208,9 @@ export class AgregarProdCompuestoComponent implements OnInit {
     } catch (error) {
       console.error('Error al guardar el combo:', error);
       this.toastr.error('No se pudo registrar el combo en Firestore.', 'Error');
+    } finally {
+      this.isSubmitting = false;
     }
   }
+
 }

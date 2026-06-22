@@ -1,3 +1,6 @@
+/* ==========================================================================
+   ESTILOS BASE DE LA MODAL
+   ========================================================================== */
 .modal-container {
     padding: 12px;
     background-color: #ffffff;
@@ -62,27 +65,13 @@
 }
 
 /* Flex Modifiers */
-.flex-1 {
-    flex: 1;
-}
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+.flex-3 { flex: 3; }
+.text-center { text-align: center; }
+.relative { position: relative; }
 
-.flex-2 {
-    flex: 2;
-}
-
-.flex-3 {
-    flex: 3;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.relative {
-    position: relative;
-}
-
-/* Filas dinámicas */
+/* Secciones de Componentes */
 .components-section h3 {
     font-size: 0.95rem;
     font-weight: 600;
@@ -96,15 +85,34 @@
     margin: 0 0 16px 0;
 }
 
+/* 🌟 CONTROLADOR DEL SCROLL INTERNO */
 .form-array-container {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    /* 🌟 CAMBIO CLAVE: Cambiamos 'auto' por 'visible' para que no corte el dropdown flotante */
-    overflow: visible;
-    padding-right: 4px;
-    /* Damos un pequeño margen de seguridad al fondo */
-    padding-bottom: 8px;
+    
+    max-height: 300px;     /* Muestra unas 4-5 filas de forma nativa antes de encender el scroll */
+    overflow-y: auto;      /* Despierta el desplazamiento vertical de forma automática */
+    overflow-x: hidden;    /* Previene scrollbar horizontal accidental */
+    
+    padding-right: 8px;    /* Margen de seguridad para que la barra no tape el botón de eliminar */
+    padding-bottom: 60px; /* 🌟 TRUCO MAESTRO: Espacio fantasma interno para que la última fila pueda desplegar su dropdown sin cortarse */
+}
+
+/* Diseño elegante y estilizado para la barra de scroll (Webkit) */
+.form-array-container::-webkit-scrollbar {
+    width: 6px;
+}
+.form-array-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+.form-array-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.form-array-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .search-wrapper {
@@ -131,7 +139,6 @@
 /* Autocomplete Flotante */
 .dropdown-suggestions {
     position: absolute;
-    /* 🌟 CAMBIO: 'top: 100%' lo pega al borde inferior del INPUT, no del form-group */
     top: 100%;
     left: 0;
     width: 100%;
@@ -141,14 +148,12 @@
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     max-height: 180px;
     overflow-y: auto;
-    /* 🌟 CAMBIO: z-index alto para garantizar que se superponga al panel de costos */
     z-index: 999;
     margin-top: 4px;
-    /* Separación estética del input */
 }
 
 .suggestion-item {
-    padding: 10px 14px;
+    padding: 8px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -179,7 +184,7 @@
     text-align: center;
 }
 
-/* Botones de acción del formulario */
+/* Botones de acción */
 .btn-add-row {
     background: none;
     border: none;
@@ -223,7 +228,7 @@
     height: 18px;
 }
 
-/* Panel de resumen y validaciones */
+/* Resumenes de Totales y Alertas */
 .summary-footer-panel {
     background-color: #f9fafb;
     border-radius: 8px;
@@ -250,7 +255,7 @@
     line-height: 1.4;
 }
 
-/* Botonera de pie */
+/* Pie de Modal */
 .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -289,7 +294,7 @@
     background-color: #f8fafc;
 }
 
-/* Estilos para el indicador de Unidad de Medida */
+/* Badges e información secundaria */
 .ref-um {
     min-width: 80px;
     text-align: center;
@@ -304,59 +309,50 @@
     border-radius: 6px;
     justify-content: center;
     height: 32px;
-    /* Un poco más compacto que la caja de texto */
     margin-top: 5px;
-    /* Centrado óptico con el input */
 }
 
-.suggestion-item small {
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-left: 4px;
-}
-
-/* ==========================================================================
-   ESTILOS ADICIONALES PARA LA MARCA Y OPTIMIZACIÓN DEL DROPDOWN
-   ========================================================================== */
-
-/* Columna de visualización de marca en la fila */
 .ref-marca {
-  min-width: 110px;
-  max-width: 140px;
+    min-width: 110px;
+    max-width: 140px;
 }
 
 .marca-badge {
-  background-color: #f0fdfa; /* Fondo verde/menta muy sutil */
-  color: #0f766e;            /* Texto verde oscuro ejecutivo */
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0 10px;
-  border-radius: 6px;
-  height: 32px;
-  margin-top: 5px;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis; /* Si la marca es muy larga, añade tres puntos (...) */
+    background-color: #f0fdfa;
+    color: #0f766e;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0 10px;
+    border-radius: 6px;
+    height: 32px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Manejo de dos líneas en el Dropdown */
 .prod-info-block {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
 }
 
 .prod-subdetails {
-  font-size: 0.75rem;
-  color: #6b7280; /* Gris secundario para los meta-datos */
-  font-weight: 500;
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
 }
 
-/* Ajuste fino al item de sugerencia para centrar verticalmente con las 2 líneas */
-.suggestion-item {
-  padding: 8px 14px;
-  align-items: center;
+/* 🌟 NUEVO: Capa invisible que permite capturar clics externos y cerrar sugerencias limpiamente */
+.click-outside-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 98;
+    background: transparent;
 }

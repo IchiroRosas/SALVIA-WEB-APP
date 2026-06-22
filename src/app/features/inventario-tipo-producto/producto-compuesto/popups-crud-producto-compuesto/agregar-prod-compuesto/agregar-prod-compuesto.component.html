@@ -34,13 +34,14 @@
                         <div class="search-wrapper">
                             <input type="text" formControlName="buscarTexto"
                                 placeholder="Escribe para buscar un producto..." class="form-control autocomplete-input"
-                                (focus)="activeDropdownIndex = i" (blur)="activeDropdownIndex = null"
-                                autocomplete="off">
+                                (focus)="activeDropdownIndex = i" autocomplete="off">
+
                             @if (item.get('buscarTexto')?.value && !item.get('producto_simple_id')?.value) {
                             <span style="color: #ef4444; font-size: 0.75rem; margin-top: 2px;">
                                 ⚠️ Debes seleccionar un producto del listado desplegable.
                             </span>
                             }
+
                             @if (activeDropdownIndex === i) {
                             <div class="dropdown-suggestions">
                                 @for (prod of obtenerFiltrados(item.get('buscarTexto')?.value); track prod.id) {
@@ -116,19 +117,25 @@
                 <strong class="text-dark">S/.{{ totalCostoAcumulado | number:'1.2-2' }}</strong>
             </div>
 
-            @if (form.errors?.['precioMenorAlCosto'] && (form.get('precio_venta_combo')?.touched || form.touched)) {
-            <div class="alert-error-box">
-                ⚠️ El precio de venta del combo (S/.{{ form.get('precio_venta_combo')?.value }}) no puede ser menor a la
-                suma del costo de compra total de sus componentes (S/.{{ form.errors?.['precioMenorAlCosto'].costoMinimo
-                | number:'1.2-2' }}).
-            </div>
-            }
+            @if (form.get('precio_venta_combo')?.value < totalCostoAcumulado && totalCostoAcumulado> 0) {
+                <div class="alert-error-box"
+                    style="background-color: #fff3cd; color: #856404; border-color: #ffeeba; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                    ⚠️ Advertencia: El precio de venta del combo (S/.{{ form.get('precio_venta_combo')?.value |
+                    number:'1.2-2' }}) es menor a la
+                    suma del costo de compra total de sus componentes (S/.{{ totalCostoAcumulado | number:'1.2-2' }}).
+                </div>
+                }
         </div>
 
         <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="form.invalid">Registrar Producto</button>
+            <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting">Registrar
+                Producto</button>
         </div>
 
     </form>
 </div>
+
+@if (activeDropdownIndex !== null) {
+<div class="click-outside-overlay" (click)="activeDropdownIndex = null"></div>
+}

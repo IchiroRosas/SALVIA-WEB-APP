@@ -1,0 +1,135 @@
+/* Contenedor y Tipografía Base */
+.dialog-container {
+    padding: 24px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Encabezados */
+.dialog-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.dialog-header p {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 6px 0 0 0;
+}
+
+/* Estructura del Contenido */
+.dialog-content {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.813rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* 🌟 Cajas de visualización de datos (Estilo idéntico a tus inputs) */
+.detail-value {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+    color: #111827;
+    background-color: #f9fafb; /* Fondo sutil de lectura */
+    min-height: 41px;          /* Mismo alto visual que tus inputs */
+    display: flex;
+    align-items: center;
+}
+
+/* Variaciones de Texto */
+.value-bold {
+    font-weight: 700;
+}
+
+.text-muted {
+    color: #6b7280;
+}
+
+/* Distribución en Filas Reutilizadas */
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-row-three {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row-three .form-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.val-half {
+    flex: 1;
+}
+
+/* Colores de Alertas de Stock */
+.text-blue {
+    color: #2563eb !important;
+}
+
+.text-red {
+    color: #ef4444 !important;
+}
+
+/* Bloque Destacado de Margen Económico */
+.text-emerald {
+    color: #059669;
+}
+
+.detail-value.value-emerald {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+    font-weight: 700;
+}
+
+/* Botonera inferior */
+.dialog-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-primary {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+}
+
+/* Estado de Carga */
+.loading-state {
+    padding: 40px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.95rem;
+}

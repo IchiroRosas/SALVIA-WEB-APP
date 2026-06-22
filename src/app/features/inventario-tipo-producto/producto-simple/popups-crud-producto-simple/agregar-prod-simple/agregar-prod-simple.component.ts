@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Firestore, collection, getDocs, query, where, doc, getDoc, addDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
@@ -23,15 +23,10 @@ export class AgregarProdSimpleComponent implements OnInit {
   productoForm!: FormGroup;
   isSubmitting = false;
 
-  // Listas maestras descargadas de Firestore
   listaCategorias: any[] = [];
   listaProveedores: any[] = [];
-
-  // Inputs de búsqueda en el Frontend
   buscarCategoria = '';
   buscarProveedor = '';
-
-  // Controladores de visibilidad para los Dropdowns personalizados
   showCatDropdown = false;
   showProvDropdown = false;
 
@@ -46,9 +41,32 @@ export class AgregarProdSimpleComponent implements OnInit {
       stock_actual: [0, [Validators.required, Validators.min(0)]],
       id_categoria: [''],  // Guardará el UID interno
       id_proveedor: ['']   // Guardará el UID interno
+    }, {
+      validators: this.validarPrecios
     });
 
     this.cargarDatosEmpresa();
+  }
+
+  validarPrecios(group: AbstractControl): ValidationErrors | null {
+    const compra = group.get('precio_compra_unitario')?.value;
+    const venta = group.get('precio_venta_unitario')?.value;
+    const ventaControl = group.get('precio_venta_unitario');
+
+    // Comparamos si el precio de venta es menor al de compra
+    if (compra !== null && venta !== null && Number(venta) < Number(compra)) {
+      // Seteamos explícitamente el error en el control para que pinte el borde rojo (input-error)
+      ventaControl?.setErrors({ ...ventaControl.errors, ventaMenor: true });
+      return { ventaMenor: true };
+    } else {
+      // Si todo está correcto, removemos nuestro error personalizado sin pisar otros validadores (como el required)
+      if (ventaControl?.hasError('ventaMenor')) {
+        const errors = { ...ventaControl.errors };
+        delete errors['ventaMenor'];
+        ventaControl.setErrors(Object.keys(errors).length ? errors : null);
+      }
+    }
+    return null;
   }
 
   async cargarDatosEmpresa(): Promise<void> {
@@ -60,7 +78,7 @@ export class AgregarProdSimpleComponent implements OnInit {
       const userDocRef = doc(this.firestore, 'users', currentUser.uid);
       const userSnap = await getDoc(userDocRef);
       if (!userSnap.exists()) return;
-      
+
       const miEmpresaId = userSnap.data()['empresa_id'];
       if (!miEmpresaId) return;
 
@@ -90,7 +108,7 @@ export class AgregarProdSimpleComponent implements OnInit {
   // Filtrado dinámico en tiempo real para Categorías
   get categoriasFiltradas(): any[] {
     if (!this.buscarCategoria.trim()) return this.listaCategorias;
-    return this.listaCategorias.filter(c => 
+    return this.listaCategorias.filter(c =>
       c.nombre_categoria.toLowerCase().includes(this.buscarCategoria.toLowerCase())
     );
   }
@@ -98,7 +116,7 @@ export class AgregarProdSimpleComponent implements OnInit {
   // Filtrado dinámico en tiempo real para Proveedores
   get proveedoresFiltrados(): any[] {
     if (!this.buscarProveedor.trim()) return this.listaProveedores;
-    return this.listaProveedores.filter(p => 
+    return this.listaProveedores.filter(p =>
       p.nombre_proveedor.toLowerCase().includes(this.buscarProveedor.toLowerCase())
     );
   }

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { Firestore, collection, getDocs, query, where, doc, getDoc, updateDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
@@ -19,24 +19,16 @@ export class ActualizarProdSimpleComponent implements OnInit {
   private auth = inject(Auth);
   private dialogRef = inject(MatDialogRef<ActualizarProdSimpleComponent>);
   private toastr = inject(ToastrService);
-  
-  // 🌟 Inyectamos el ID que viene desde la tabla
-  private data = inject(MAT_DIALOG_DATA); 
-  idProducto!: string;
+  private data = inject(MAT_DIALOG_DATA);
 
+  idProducto!: string;
   productoForm!: FormGroup;
   isSubmitting = false;
   isLoading = true;
-
-  // Colecciones maestras locales
   listaCategorias: any[] = [];
   listaProveedores: any[] = [];
-
-  // Inputs visuales del Frontend
   buscarCategoria = '';
   buscarProveedor = '';
-
-  // Controladores de dropdowns
   showCatDropdown = false;
   showProvDropdown = false;
 
@@ -53,9 +45,31 @@ export class ActualizarProdSimpleComponent implements OnInit {
       stock_actual: [0, [Validators.required, Validators.min(0)]],
       id_categoria: [''],
       id_proveedor: ['']
+    }, {
+      validators: this.validarPrecios
     });
 
     this.inicializarDatos();
+  }
+
+  validarPrecios(group: AbstractControl): ValidationErrors | null {
+    const compra = group.get('precio_compra_unitario')?.value;
+    const venta = group.get('precio_venta_unitario')?.value;
+    const ventaControl = group.get('precio_venta_unitario');
+
+    if (compra !== null && venta !== null && Number(venta) < Number(compra)) {
+      // Setea el error en el control individual para pintar el borde rojo
+      ventaControl?.setErrors({ ...ventaControl.errors, ventaMenor: true });
+      return { ventaMenor: true };
+    } else {
+      // Limpia el error personalizado sin pisar otros validadores activos
+      if (ventaControl?.hasError('ventaMenor')) {
+        const errors = { ...ventaControl.errors };
+        delete errors['ventaMenor'];
+        ventaControl.setErrors(Object.keys(errors).length ? errors : null);
+      }
+    }
+    return null;
   }
 
   async inicializarDatos(): Promise<void> {
@@ -119,14 +133,14 @@ export class ActualizarProdSimpleComponent implements OnInit {
   // Filtrado reactivo en tiempo real
   get categoriasFiltradas(): any[] {
     if (!this.buscarCategoria.trim()) return this.listaCategorias;
-    return this.listaCategorias.filter(c => 
+    return this.listaCategorias.filter(c =>
       c.nombre_categoria.toLowerCase().includes(this.buscarCategoria.toLowerCase())
     );
   }
 
   get proveedoresFiltrados(): any[] {
     if (!this.buscarProveedor.trim()) return this.listaProveedores;
-    return this.listaProveedores.filter(p => 
+    return this.listaProveedores.filter(p =>
       p.nombre_proveedor.toLowerCase().includes(this.buscarProveedor.toLowerCase())
     );
   }

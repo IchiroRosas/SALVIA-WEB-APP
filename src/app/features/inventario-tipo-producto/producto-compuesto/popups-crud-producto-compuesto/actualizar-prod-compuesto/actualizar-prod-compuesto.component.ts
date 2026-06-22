@@ -7,6 +7,7 @@ import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { of, combineLatest } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import Swal from 'sweetalert2';
 
 import { InventarioService } from '../../../../services/inventario.service';
 import { ProductoSimpleDb, ProductoCompuestoDb } from '../../../../../shared/models/dto';
@@ -25,6 +26,7 @@ export class ActualizarProdCompuestoComponent implements OnInit {
   private inventarioService = inject(InventarioService);
   private toastr = inject(ToastrService);
   private dialogRef = inject(MatDialogRef<ActualizarProdCompuestoComponent>);
+  private isSubmitting = false;
 
   // Recibimos el objeto con el ID enviado desde la tabla ({ idCombo: '...' })
   public dataInput = inject<{ idCombo: string }>(MAT_DIALOG_DATA);
@@ -49,12 +51,12 @@ export class ActualizarProdCompuestoComponent implements OnInit {
   }
 
   initForm(): void {
-    // Inicializa el cascarón del formulario vacío
     this.form = this.fb.group({
       descripcion_prod_comp: ['', Validators.required],
-      precio_venta_combo: [0, [Validators.required, Validators.min(0.01)]],
+      // 🌟 CORRECCIÓN: Permitimos base 0 y eliminamos el { validators: this.validarPrecioCombo } del final
+      precio_venta_combo: [0, [Validators.required, Validators.min(0)]],
       productos_componentes: this.fb.array([])
-    }, { validators: this.validarPrecioCombo });
+    });
   }
 
   cargarDatosEInyectarValores(): void {
@@ -107,7 +109,7 @@ export class ActualizarProdCompuestoComponent implements OnInit {
     if (this.comboCompletoDb.productos_componentes && this.comboCompletoDb.productos_componentes.length > 0) {
       this.comboCompletoDb.productos_componentes.forEach(comp => {
         const match = this.catalogoProductosSimples.find(p => p.id === comp.producto_simple_id);
-        
+
         this.agregarComponenteConDatos({
           buscarTexto: match ? match.descripcion_prod : 'Producto no disponible',
           producto_simple_id: comp.producto_simple_id,
@@ -210,14 +212,39 @@ export class ActualizarProdCompuestoComponent implements OnInit {
       return;
     }
 
+    const values = this.form.value;
+    const precioVenta = Number(values.precio_venta_combo);
+    const costoAcumulado = this.totalCostoAcumulado;
+
+    // Validación manual de negocio previa a la actualización
+    if (precioVenta < costoAcumulado) {
+      const confirmacion = await Swal.fire({
+        title: '¿Está seguro de continuar?',
+        text: `El precio de venta (S/.${precioVenta.toFixed(2)}) es menor al costo acumulado total de sus componentes (S/.${costoAcumulado.toFixed(2)}).`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, actualizar de todos modos',
+        cancelButtonText: 'No, cancelar y cerrar todo'
+      });
+
+      if (!confirmacion.isConfirmed) {
+        this.cerrarModal();
+        return;
+      }
+    }
+
+    this.isSubmitting = true;
     try {
-      const values = this.form.value;
       const comboActualizado: Partial<ProductoCompuestoDb> = {
         descripcion_prod_comp: values.descripcion_prod_comp,
-        precio_venta_combo: Number(values.precio_venta_combo),
+        precio_venta_combo: precioVenta,
         productos_componentes: values.productos_componentes.map((c: any) => ({
           producto_simple_id: c.producto_simple_id,
-          cantidad_necesaria: Number(c.cantidad_necesaria)
+          cantidad_necesaria: Number(c.cantidad_necesaria),
+          // 🌟 Mantenemos el costo unitario mapeado en el arreglo por consistencia
+          precio_compra_unitario: Number(c.precio_compra_unitario || 0)
         }))
       };
 
@@ -226,8 +253,10 @@ export class ActualizarProdCompuestoComponent implements OnInit {
       this.dialogRef.close(true);
     } catch (error) {
       console.error('Error al actualizar:', error);
-      this.toastr.error('No se pudo guardar los cambios.', 'Error');
+      this.toastr.error('No se pudo guardar los cambios en Firestore.', 'Error');
+    } finally {
+      this.isSubmitting = false;
     }
   }
-
+  
 }

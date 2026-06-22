@@ -131,14 +131,14 @@
                 <strong class="text-dark">S/.{{ totalCostoAcumulado | number:'1.2-2' }}</strong>
             </div>
 
-            @if (form.errors?.['precioMenorAlCosto']) {
-            <div class="alert-error-box">
-                ⚠️ El precio de venta del combo (S/.{{ form.get('precio_venta_combo')?.value || 0 | number:'1.2-2' }}) no puede ser menor a la
-                suma del costo de compra total de sus componentes (S/.{{ form.errors?.['costoMinimo'] | number:'1.2-2' }}).
+            @if (form.get('precio_venta_combo')?.value < totalCostoAcumulado && totalCostoAcumulado > 0) {
+            <div class="alert-error-box" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                ⚠️ Advertencia: El precio de venta del combo (S/.{{ form.get('precio_venta_combo')?.value || 0 | number:'1.2-2' }}) es menor a la
+                suma del costo de compra total de sus componentes (S/.{{ totalCostoAcumulado | number:'1.2-2' }}).
             </div>
             }
         </div>
-
+        
         <div class="modal-actions">
             <button type="button" class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
             <button type="submit" class="btn-primary" (click)="actualizarCombo()" [disabled]="form.invalid">Guardar Cambios</button>
