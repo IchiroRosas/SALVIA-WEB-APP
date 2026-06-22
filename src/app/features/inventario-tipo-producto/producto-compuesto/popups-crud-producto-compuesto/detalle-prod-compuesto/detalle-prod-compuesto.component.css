@@ -11,7 +11,7 @@
     overflow-y: auto;
 }
 
-/* Estilización opcional para que la barra de scroll se vea más sutil */
+/* Estilización para la barra de scroll sutil */
 .modal-container::-webkit-scrollbar {
     width: 6px;
 }
@@ -94,6 +94,8 @@
 .flex-3 { flex: 3; }
 .text-center { text-align: center; }
 .relative { position: relative; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
 
 /* Filas dinámicas */
 .components-section h3 {
@@ -421,4 +423,56 @@
 
 @keyframes spin-loader {
     to { transform: rotate(360deg); }
+}
+
+
+/* ==========================================================================
+   3. ESTILOS EXCLUSIVOS PARA MODO VISTA / DETALLE (SOLO LECTURA)
+   ========================================================================== */
+
+/* Transforma los campos de tipo input en contenedores estáticos limpios */
+.value-view {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    box-shadow: none !important;
+    pointer-events: none; /* Previene interacciones accidentales o focos */
+    user-select: all;      /* Permite al usuario copiar el texto si lo desea */
+}
+
+/* Evita que textos largos de descripción rompan la grilla */
+.truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Alineación y espaciado de la columna final de costo referencial */
+.ref-cost {
+    min-width: 95px;
+    text-align: right;
+}
+
+/* Separador estético para las líneas de totales en el panel inferior */
+.margin-top-xs {
+    margin-top: 6px;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 6px;
+}
+
+/* Clases de utilidad de color para el Margen Comercial según el balance */
+.text-dark {
+    color: #111827;
+}
+
+.text-success {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.text-danger {
+    color: #dc2626;
+    font-weight: 700;
 }
