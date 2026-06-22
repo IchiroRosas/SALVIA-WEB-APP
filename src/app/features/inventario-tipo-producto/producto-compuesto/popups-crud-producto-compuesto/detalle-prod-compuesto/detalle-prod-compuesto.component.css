@@ -1,10 +1,34 @@
 /* ==========================================================================
-   ESTILOS BASE DE LA MODAL
+   1. CONTENEDOR E INFRAESTRUCTURA BASE ORIGINAL
    ========================================================================== */
 .modal-container {
     padding: 12px;
     background-color: #ffffff;
     font-family: inherit;
+    box-sizing: border-box;
+    /* 🌟 SOLUCIÓN SCROLL: Altura máxima adaptable y scroll dinámico al lado */
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+/* Estilización para la barra de scroll sutil */
+.modal-container::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+.modal-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+.modal-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.modal-container * {
+    box-sizing: border-box;
 }
 
 .modal-header h2 {
@@ -70,8 +94,10 @@
 .flex-3 { flex: 3; }
 .text-center { text-align: center; }
 .relative { position: relative; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
 
-/* Secciones de Componentes */
+/* Filas dinámicas */
 .components-section h3 {
     font-size: 0.95rem;
     font-weight: 600;
@@ -85,34 +111,13 @@
     margin: 0 0 16px 0;
 }
 
-/* 🌟 CONTROLADOR DEL SCROLL INTERNO */
 .form-array-container {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    
-    max-height: 300px;     /* Muestra unas 4-5 filas de forma nativa antes de encender el scroll */
-    overflow-y: auto;      /* Despierta el desplazamiento vertical de forma automática */
-    overflow-x: hidden;    /* Previene scrollbar horizontal accidental */
-    
-    padding-right: 8px;    /* Margen de seguridad para que la barra no tape el botón de eliminar */
-    padding-bottom: 60px; /* 🌟 TRUCO MAESTRO: Espacio fantasma interno para que la última fila pueda desplegar su dropdown sin cortarse */
-}
-
-/* Diseño elegante y estilizado para la barra de scroll (Webkit) */
-.form-array-container::-webkit-scrollbar {
-    width: 6px;
-}
-.form-array-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-.form-array-container::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
-.form-array-container::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    overflow: visible;
+    padding-right: 4px;
+    padding-bottom: 8px;
 }
 
 .search-wrapper {
@@ -184,7 +189,7 @@
     text-align: center;
 }
 
-/* Botones de acción */
+/* Botones de acción de fila */
 .btn-add-row {
     background: none;
     border: none;
@@ -194,6 +199,7 @@
     cursor: pointer;
     margin-top: 10px;
     padding: 4px 0;
+    text-align: left;
 }
 
 .btn-add-row:hover {
@@ -228,7 +234,7 @@
     height: 18px;
 }
 
-/* Resumenes de Totales y Alertas */
+/* Panel de resumen y validaciones */
 .summary-footer-panel {
     background-color: #f9fafb;
     border-radius: 8px;
@@ -255,7 +261,7 @@
     line-height: 1.4;
 }
 
-/* Pie de Modal */
+/* Botonera de pie original */
 .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -294,7 +300,7 @@
     background-color: #f8fafc;
 }
 
-/* Badges e información secundaria */
+/* Indicadores específicos de Badges */
 .ref-um {
     min-width: 80px;
     text-align: center;
@@ -310,6 +316,12 @@
     justify-content: center;
     height: 32px;
     margin-top: 5px;
+}
+
+.suggestion-item small {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 4px;
 }
 
 .ref-marca {
@@ -346,13 +358,121 @@
     font-weight: 500;
 }
 
-/* 🌟 NUEVO: Capa invisible que permite capturar clics externos y cerrar sugerencias limpiamente */
+/* ==========================================================================
+   2. EXTENSIONES EXCLUSIVAS DE ACTUALIZACIÓN (COMPLEMENTOS LIMPIOS)
+   ========================================================================== */
+.btn-danger-combo {
+    background-color: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fca5a5;
+    padding: 0 20px;
+    height: 44px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-danger-combo:hover {
+    background-color: #fee2e2;
+}
+
+.error-validation-msg {
+    color: #dc2626;
+    font-size: 0.75rem;
+    margin-top: 2px;
+    display: block;
+}
+
+/* Capa transparente anti-foco */
 .click-outside-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 98;
     background: transparent;
+    z-index: 900;
+}
+
+/* Bloque del Spinner del modal en carga */
+.modal-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    gap: 12px;
+}
+
+.custom-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3.5px solid #e5e7eb;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin-loader 0.8s linear infinite;
+}
+
+.loading-text {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+@keyframes spin-loader {
+    to { transform: rotate(360deg); }
+}
+
+
+/* ==========================================================================
+   3. ESTILOS EXCLUSIVOS PARA MODO VISTA / DETALLE (SOLO LECTURA)
+   ========================================================================== */
+
+/* Transforma los campos de tipo input en contenedores estáticos limpios */
+.value-view {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    box-shadow: none !important;
+    pointer-events: none; /* Previene interacciones accidentales o focos */
+    user-select: all;      /* Permite al usuario copiar el texto si lo desea */
+}
+
+/* Evita que textos largos de descripción rompan la grilla */
+.truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Alineación y espaciado de la columna final de costo referencial */
+.ref-cost {
+    min-width: 95px;
+    text-align: right;
+}
+
+/* Separador estético para las líneas de totales en el panel inferior */
+.margin-top-xs {
+    margin-top: 6px;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 6px;
+}
+
+/* Clases de utilidad de color para el Margen Comercial según el balance */
+.text-dark {
+    color: #111827;
+}
+
+.text-success {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.text-danger {
+    color: #dc2626;
+    font-weight: 700;
 }

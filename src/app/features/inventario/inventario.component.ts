@@ -88,4 +88,8 @@ export class InventarioComponent implements OnInit { // 🌟 Buena práctica: ag
     }
   }
 
+  volver(): void {
+    this.router.navigate(['/menu-principal']);
+  }
+
 }

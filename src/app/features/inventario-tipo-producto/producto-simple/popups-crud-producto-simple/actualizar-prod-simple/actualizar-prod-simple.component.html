@@ -1,134 +1,105 @@
 <div class="dialog-container">
   @if (isLoading) {
-    <div class="loading-state">
-      <p>Cargando información del producto...</p>
-    </div>
+  <div class="loading-state">
+    <p>Cargando información del producto...</p>
+  </div>
   } @else {
-    <header class="dialog-header">
-      <h2>Actualizar Producto Simple</h2>
-      <p>Modifica los campos del formulario para actualizar el registro en el inventario</p>
-    </header>
+  <header class="dialog-header">
+    <h2>Actualizar Producto Simple</h2>
+    <p>Modifica los campos del formulario para actualizar el registro en el inventario</p>
+  </header>
 
-    <form [formGroup]="productoForm" (ngSubmit)="actualizar()" class="dialog-form">
+  <form [formGroup]="productoForm" (ngSubmit)="actualizar()" class="dialog-form">
+
+    <div class="form-group">
+      <label for="descripcion_prod">Descripción del Producto *</label>
+      <input id="descripcion_prod" type="text" formControlName="descripcion_prod"
+        placeholder="Ej. Arroz Integral Superior"
+        [class.input-error]="productoForm.get('descripcion_prod')?.invalid && productoForm.get('descripcion_prod')?.touched" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group val-half">
+        <label for="marca_prod">Marca</label>
+        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Costeño" />
+      </div>
+
+      <div class="form-group val-half">
+        <label for="unidad_medida">Unidad de Medida Venta *</label>
+        <input id="unidad_medida" type="text" formControlName="unidad_medida" placeholder="Ej. Kilogramo / Unidad"
+          [class.input-error]="productoForm.get('unidad_medida')?.invalid && productoForm.get('unidad_medida')?.touched" />
+      </div>
+    </div>
+
+    <div class="form-row-three">
+      <div class="form-group">
+        <label for="precio_compra">Precio Compra (S/.) *</label>
+        <input id="precio_compra" type="number" step="0.01" formControlName="precio_compra_unitario"
+          [class.input-error]="productoForm.get('precio_compra_unitario')?.invalid" />
+      </div>
+
+      <div class="form-group">
+        <label for="precio_venta">Precio Venta (S/.) *</label>
+        <input id="precio_venta" type="number" step="0.01" formControlName="precio_venta_unitario"
+          [class.input-error]="productoForm.get('precio_venta_unitario')?.invalid" />
+
+        @if (productoForm.get('precio_venta_unitario')?.hasError('ventaMenor')) {
+        <small style="color: #dc3545; display: block; margin-top: 5px; font-weight: 500; font-size: 0.85rem;">
+          El precio de venta no puede ser menor al precio de compra.
+        </small>
+        }
+      </div>
       
       <div class="form-group">
-        <label for="descripcion_prod">Descripción del Producto *</label>
-        <input 
-          id="descripcion_prod" 
-          type="text" 
-          formControlName="descripcion_prod" 
-          placeholder="Ej. Arroz Integral Superior"
-          [class.input-error]="productoForm.get('descripcion_prod')?.invalid && productoForm.get('descripcion_prod')?.touched"
-        />
+        <label for="stock_actual">Stock Actual *</label>
+        <input id="stock_actual" type="number" formControlName="stock_actual"
+          [class.input-error]="productoForm.get('stock_actual')?.invalid" />
       </div>
+    </div>
 
-      <div class="form-row">
-        <div class="form-group val-half">
-          <label for="marca_prod">Marca</label>
-          <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Costeño" />
-        </div>
-        
-        <div class="form-group val-half">
-          <label for="unidad_medida">Unidad de Medida Venta *</label>
-          <input 
-            id="unidad_medida" 
-            type="text" 
-            formControlName="unidad_medida" 
-            placeholder="Ej. Kilogramo / Unidad"
-            [class.input-error]="productoForm.get('unidad_medida')?.invalid && productoForm.get('unidad_medida')?.touched"
-          />
-        </div>
-      </div>
+    <div class="form-group relative-container">
+      <label>Categoría</label>
+      <input type="text" [(ngModel)]="buscarCategoria" [ngModelOptions]="{standalone: true}"
+        placeholder="Escribe para buscar una categoría..." (focus)="showCatDropdown = true"
+        (blur)="showCatDropdown = false; evaluarLimpiezaCelda('cat')" autocomplete="off" />
 
-      <div class="form-row-three">
-        <div class="form-group">
-          <label for="precio_compra">Precio Compra (S/.) *</label>
-          <input 
-            id="precio_compra" 
-            type="number" 
-            step="0.01"
-            formControlName="precio_compra_unitario" 
-            [class.input-error]="productoForm.get('precio_compra_unitario')?.invalid"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="precio_venta">Precio Venta (S/.) *</label>
-          <input 
-            id="precio_venta" 
-            type="number" 
-            step="0.01"
-            formControlName="precio_venta_unitario" 
-            [class.input-error]="productoForm.get('precio_venta_unitario')?.invalid"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="stock_actual">Stock Actual *</label>
-          <input 
-            id="stock_actual" 
-            type="number" 
-            formControlName="stock_actual" 
-            [class.input-error]="productoForm.get('stock_actual')?.invalid"
-          />
-        </div>
-      </div>
-
-      <div class="form-group relative-container">
-        <label>Categoría</label>
-        <input 
-          type="text" 
-          [(ngModel)]="buscarCategoria" 
-          [ngModelOptions]="{standalone: true}"
-          placeholder="Escribe para buscar una categoría..."
-          (focus)="showCatDropdown = true"
-          (blur)="showCatDropdown = false; evaluarLimpiezaCelda('cat')"
-          autocomplete="off"
-        />
-        
-        @if (showCatDropdown && categoriasFiltradas.length > 0) {
-          <ul class="autocomplete-dropdown">
-            @for (cat of categoriasFiltradas; track cat.id) {
-              <li (mousedown)="seleccionarCategoria(cat)">
-                {{ cat.nombre_categoria }}
-              </li>
-            }
-          </ul>
+      @if (showCatDropdown && categoriasFiltradas.length > 0) {
+      <ul class="autocomplete-dropdown">
+        @for (cat of categoriasFiltradas; track cat.id) {
+        <li (mousedown)="seleccionarCategoria(cat)">
+          {{ cat.nombre_categoria }}
+        </li>
         }
-      </div>
+      </ul>
+      }
+    </div>
 
-      <div class="form-group relative-container">
-        <label>Proveedor</label>
-        <input 
-          type="text" 
-          [(ngModel)]="buscarProveedor" 
-          [ngModelOptions]="{standalone: true}"
-          placeholder="Escribe para buscar un proveedor..."
-          (focus)="showProvDropdown = true"
-          (blur)="showProvDropdown = false; evaluarLimpiezaCelda('prov')"
-          autocomplete="off"
-        />
+    <div class="form-group relative-container">
+      <label>Proveedor</label>
+      <input type="text" [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
+        placeholder="Escribe para buscar un proveedor..." (focus)="showProvDropdown = true"
+        (blur)="showProvDropdown = false; evaluarLimpiezaCelda('prov')" autocomplete="off" />
 
-        @if (showProvDropdown && proveedoresFiltrados.length > 0) {
-          <ul class="autocomplete-dropdown">
-            @for (prov of proveedoresFiltrados; track prov.id) {
-              <li (mousedown)="seleccionarProveedor(prov)">
-                {{ prov.nombre_proveedor }}
-              </li>
-            }
-          </ul>
+      @if (showProvDropdown && proveedoresFiltrados.length > 0) {
+      <ul class="autocomplete-dropdown">
+        @for (prov of proveedoresFiltrados; track prov.id) {
+        <li (mousedown)="seleccionarProveedor(prov)">
+          {{ prov.nombre_proveedor }}
+        </li>
         }
-      </div>
+      </ul>
+      }
+    </div>
 
-      <footer class="dialog-actions">
-        <button type="button" class="btn-secondary" (click)="cancelar()" [disabled]="isSubmitting">
-          Cancelar
-        </button>
-        <button type="submit" class="btn-primary" [disabled]="productoForm.invalid || isSubmitting">
-          {{ isSubmitting ? 'Guardando...' : 'Guardar Cambios' }}
-        </button>
-      </footer>
+    <footer class="dialog-actions">
+      <button type="button" class="btn-secondary" (click)="cancelar()" [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="productoForm.invalid || isSubmitting">
+        {{ isSubmitting ? 'Guardando...' : 'Guardar Cambios' }}
+      </button>
+    </footer>
 
-    </form>
+  </form>
   }
 </div>

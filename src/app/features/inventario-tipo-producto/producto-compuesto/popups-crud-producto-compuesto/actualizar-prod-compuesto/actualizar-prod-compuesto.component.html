@@ -1,1 +1,153 @@
-<p>actualizar-prod-compuesto works!</p>
+<div class="modal-container">
+    <div class="modal-header">
+        <h2>Actualizar Producto Compuesto (Combo)</h2>
+        <p class="subtitle">Modifica los detalles o componentes de este combo</p>
+    </div>
+
+    @if (cargando) {
+    <div class="modal-loading-state">
+        <div class="custom-spinner"></div>
+        <p class="loading-text">Recuperando especificaciones del combo...</p>
+    </div>
+    } @else {
+    <form [formGroup]="form" (ngSubmit)="$event.preventDefault()" class="modal-form">
+
+        <div class="form-row main-fields">
+            <div class="form-group flex-2">
+                <label for="descripcion_prod_comp">Descripción del Combo *</label>
+                <input type="text" id="descripcion_prod_comp" formControlName="descripcion_prod_comp"
+                    placeholder="Ej. Combo Escolar Cuaderno + Lápiz" class="form-control">
+                @if (form.get('descripcion_prod_comp')?.touched && form.get('descripcion_prod_comp')?.invalid) {
+                <span class="error-validation-msg">La descripción es obligatoria.</span>
+                }
+            </div>
+
+            <div class="form-group flex-1">
+                <label for="precio_venta_combo">Precio Venta (S/.) *</label>
+                <input type="number" id="precio_venta_combo" formControlName="precio_venta_combo" step="0.01"
+                    class="form-control">
+                @if (form.get('precio_venta_combo')?.touched && form.get('precio_venta_combo')?.invalid) {
+                <span class="error-validation-msg">El precio mínimo debe ser S/. 0.01</span>
+                }
+            </div>
+        </div>
+
+        <div class="components-section">
+            <h3>Productos Componentes</h3>
+            <p class="section-desc">Selecciona los productos simples que conformarán este combo</p>
+
+            <div formArrayName="productos_componentes" class="form-array-container">
+                @for (item of componentesFormArray.controls; track $index; let i = $index) {
+                <div [formGroupName]="i" class="component-row">
+
+                    <div class="form-group flex-3">
+                        <label *ngIf="i === 0">Buscar Producto Simple *</label>
+
+                        <div class="search-wrapper">
+                            <input type="text" formControlName="buscarTexto"
+                                placeholder="Escribe para buscar un producto..." class="form-control autocomplete-input"
+                                (focus)="activeDropdownIndex = i" autocomplete="off">
+
+                            @if (item.get('buscarTexto')?.value && !item.get('producto_simple_id')?.value) {
+                            <span class="error-validation-msg">
+                                ⚠️ Debes seleccionar un producto del listado desplegable.
+                            </span>
+                            }
+
+                            @if (activeDropdownIndex === i && obtenerFiltrados(item.get('buscarTexto')?.value).length > 0) {
+                            <div class="dropdown-suggestions">
+                                @for (prod of obtenerFiltrados(item.get('buscarTexto')?.value); track prod.id) {
+                                <div class="suggestion-item" (mousedown)="seleccionarProducto(i, prod)">
+                                    <div class="prod-info-block">
+                                        <span class="prod-name">{{ prod.descripcion_prod }}</span>
+                                        <span class="prod-subdetails">
+                                            Marca: {{ prod.marca_prod || 'Sin Marca' }} | U.M: {{ prod.unidad_medida || 'UND' }}
+                                        </span>
+                                    </div>
+                                    <span class="prod-cost">Costo: S/.{{ prod.precio_compra_unitario | number:'1.2-2' }}</span>
+                                </div>
+                                }
+                            </div>
+                            }
+                        </div>
+                        @if (item.get('producto_simple_id')?.invalid && item.get('buscarTexto')?.touched) {
+                        <span class="error-validation-msg">Selecciona un producto de la lista.</span>
+                        }
+                    </div>
+
+                    <div class="form-group ref-marca">
+                        <label *ngIf="i === 0">Marca</label>
+                        <div class="static-value marca-badge" [title]="item.get('marca')?.value">
+                            {{ item.get('marca')?.value || '—' }}
+                        </div>
+                    </div>
+
+                    <div class="form-group flex-1">
+                        <label *ngIf="i === 0">Cantidad *</label>
+                        <input type="number" formControlName="cantidad_necesaria" min="0.001" step="any"
+                            class="form-control text-center">
+                        @if (item.get('cantidad_necesaria')?.invalid && item.get('cantidad_necesaria')?.touched) {
+                        <span class="error-validation-msg text-center">Min. 0.001</span>
+                        }
+                    </div>
+
+                    <div class="form-group ref-um">
+                        <label *ngIf="i === 0">U. Medida</label>
+                        <div class="static-value unit-badge">
+                            {{ item.get('unidad_medida')?.value || '—' }}
+                        </div>
+                    </div>
+
+                    <div class="form-group ref-cost">
+                        <label *ngIf="i === 0">Ref. Costo</label>
+                        <div class="static-value">
+                            S/.{{ (Number(item.get('precio_compra_unitario')?.value || 0) *
+                            Number(item.get('cantidad_necesaria')?.value || 0)) | number:'1.2-2' }}
+                        </div>
+                    </div>
+
+                    <div class="action-col" [class.no-label]="i !== 0">
+                        <button type="button" class="btn-remove" [disabled]="componentesFormArray.length <= 1"
+                            (click)="eliminarComponente(i)" title="Quitar Producto">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="icon-sm">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                </div>
+                }
+            </div>
+
+            <button type="button" class="btn-add-row" (click)="agregarComponente()">
+                + Añadir otro producto simple
+            </button>
+        </div>
+
+        <div class="summary-footer-panel">
+            <div class="cost-summary">
+                <span>Costo Total de Producción Acumulado:</span>
+                <strong class="text-dark">S/.{{ totalCostoAcumulado | number:'1.2-2' }}</strong>
+            </div>
+
+            @if (form.get('precio_venta_combo')?.value < totalCostoAcumulado && totalCostoAcumulado > 0) {
+            <div class="alert-error-box" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                ⚠️ Advertencia: El precio de venta del combo (S/.{{ form.get('precio_venta_combo')?.value || 0 | number:'1.2-2' }}) es menor a la
+                suma del costo de compra total de sus componentes (S/.{{ totalCostoAcumulado | number:'1.2-2' }}).
+            </div>
+            }
+        </div>
+        
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+            <button type="submit" class="btn-primary" (click)="actualizarCombo()" [disabled]="form.invalid">Guardar Cambios</button>
+        </div>
+
+    </form>
+    }
+</div>
+
+@if (activeDropdownIndex !== null) {
+<div class="click-outside-overlay" (click)="activeDropdownIndex = null"></div>
+}

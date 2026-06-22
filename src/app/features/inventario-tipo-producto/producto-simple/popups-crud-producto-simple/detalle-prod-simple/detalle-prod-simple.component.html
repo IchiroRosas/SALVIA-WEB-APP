@@ -1,0 +1,92 @@
+<div class="dialog-container" *ngIf="productoDetalle$ | async as prod; else cargando">
+  
+  <header class="dialog-header">
+    <h2>Detalle del Producto Simple</h2>
+    <p>Consulta los campos y especificaciones completas de este producto</p>
+  </header>
+
+  <div class="dialog-content">
+
+    <div class="form-group">
+      <label>Descripción del Producto</label>
+      <div class="detail-value value-bold">
+        {{ prod.descripcion_prod || 'N/A' }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group val-half">
+        <label>Marca</label>
+        <div class="detail-value">
+          {{ prod.marca_prod || 'Sin Marca registrada' }}
+        </div>
+      </div>
+
+      <div class="form-group val-half">
+        <label>Unidad de Medida Venta</label>
+        <div class="detail-value">
+          {{ prod.unidad_medida || 'N/A' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group val-half">
+        <label>Categoría</label>
+        <div class="detail-value">
+          {{ prod.nombre_categoria }}
+        </div>
+      </div>
+
+      <div class="form-group val-half">
+        <label>Proveedor</label>
+        <div class="detail-value">
+          {{ prod.nombre_proveedor }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row-three">
+      <div class="form-group">
+        <label>Precio Compra</label>
+        <div class="detail-value">
+          S/. {{ (prod.precio_compra_unitario || 0) | number:'1.2-2' }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Precio Venta</label>
+        <div class="detail-value">
+          S/. {{ (prod.precio_venta_unitario || 0) | number:'1.2-2' }}
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Stock Actual</label>
+        <div class="detail-value">
+          {{ prod.stock_actual ?? 0 }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="text-emerald">Margen Comercial Neto</label>
+      <div class="detail-value value-emerald">
+        S/. {{ ((prod.precio_venta_unitario || 0) - (prod.precio_compra_unitario || 0)) | number:'1.2-2' }}
+      </div>
+    </div>
+
+    <footer class="dialog-actions">
+      <button type="button" class="btn-primary" (click)="cerrar()">
+        Cerrar Ventana
+      </button>
+    </footer>
+
+  </div>
+</div>
+
+<ng-template #cargando>
+  <div class="loading-state">
+    <p>Buscando expediente del producto...</p>
+  </div>
+</ng-template>

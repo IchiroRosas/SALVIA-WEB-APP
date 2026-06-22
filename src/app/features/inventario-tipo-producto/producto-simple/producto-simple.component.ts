@@ -6,9 +6,11 @@ import { Observable, combineLatest, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { ProductoSimpleDb, ProductoSimpleListadoDto } from '../../../shared/models/dto'; // Ajusta la ruta de importación
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { DetalleProdSimpleComponent } from './popups-crud-producto-simple/detalle-prod-simple/detalle-prod-simple.component';
 import { ActualizarProdSimpleComponent } from './popups-crud-producto-simple/actualizar-prod-simple/actualizar-prod-simple.component';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
+import { InventarioService } from "../../services/inventario.service";
 
 @Component({
   selector: 'app-producto-simple',
@@ -23,8 +25,10 @@ export class ProductoSimpleComponent implements OnInit {
   private auth = inject(Auth);
   private dialog = inject(MatDialog);
   private toastr = inject(ToastrService);
+  private inventarioService = inject(InventarioService);
 
   rolUsuario: string | null = null;
+  empresaId: string | null = null;
   productosMapeados$!: Observable<ProductoSimpleListadoDto[]>;
 
   ngOnInit(): void {
@@ -43,6 +47,7 @@ export class ProductoSimpleComponent implements OnInit {
         }
 
         const miEmpresaId = userData.empresa_id;
+        this.empresaId = miEmpresaId;
 
         const prodsQuery = query(collection(this.firestore, 'productos_simples'), where('empresa_id', '==', miEmpresaId), where('activo', '==', true));
         const catsQuery = query(collection(this.firestore, 'categorias'), where('empresa_id', '==', miEmpresaId));
@@ -66,7 +71,8 @@ export class ProductoSimpleComponent implements OnInit {
                 marca: prod.marca_prod || 'Sin Marca',
                 stock: prod.stock_actual || 0,
                 unidadMedida: prod.unidad_medida || 'N/A',
-                precioVenta: prod.precio_venta_unitario || 0
+                precioVenta: prod.precio_venta_unitario || 0,
+                precioCompra: prod.precio_compra_unitario || 0
               };
             });
           })
@@ -79,6 +85,15 @@ export class ProductoSimpleComponent implements OnInit {
     return this.rolUsuario === 'administrador';
   }
 
+  verDetalleProducto(id: string): void {
+    this.dialog.open(DetalleProdSimpleComponent, {
+      width: '50vw',
+      maxWidth: 'none',
+      disableClose: false, // Permite que se cierre al hacer clic fuera
+      data: { idProducto: id }
+    });
+  }
+
   editarProducto(id: string): void {
     this.dialog.open(ActualizarProdSimpleComponent, {
       width: '60vw',
@@ -88,27 +103,68 @@ export class ProductoSimpleComponent implements OnInit {
     });
   }
 
-  eliminarProdSimple(id: string): void {
+  async eliminarProdSimple(id: string): Promise<void> {
+    if (!this.empresaId) {
+      this.toastr.error('No se pudo determinar la empresa del usuario.', 'Error');
+      return;
+    }
+
+    try {
+      // 1. Validar las dependencias desde el Service
+      const dependencias = await this.inventarioService.verificarDependenciasProductoSimple(id, this.empresaId);
+
+      // 2. Si se encuentra en alguna colección, se interrumpe y se muestra el listado estructurado
+      if (dependencias.compuestos.length > 0 || dependencias.promociones.length > 0) {
+        let htmlLista = '<div style="text-align: left; max-height: 250px; overflow-y: auto;">';
+        htmlLista += '<p>Este artículo no puede eliminarse porque está asignado a los siguientes elementos:</p>';
+
+        if (dependencias.compuestos.length > 0) {
+          htmlLista += '<p style="margin-bottom: 2px; font-weight: bold; color: #1e293b;">🛒 Productos Compuestos (Combos):</p><ul style="margin-top: 2px; padding-left: 20px;">';
+          dependencias.compuestos.forEach(comp => htmlLista += `<li>${comp}</li>`);
+          htmlLista += '</ul>';
+        }
+
+        if (dependencias.promociones.length > 0) {
+          htmlLista += '<p style="margin-bottom: 2px; font-weight: bold; color: #1e293b;">🏷️ Promociones:</p><ul style="margin-top: 2px; padding-left: 20px;">';
+          dependencias.promociones.forEach(promo => htmlLista += `<li>${promo}</li>`);
+          htmlLista += '</ul>';
+        }
+        htmlLista += '</div>';
+
+        Swal.fire({
+          title: 'Acción Bloqueada',
+          html: htmlLista,
+          icon: 'error',
+          confirmButtonText: 'Acepto',
+          confirmButtonColor: '#2563eb'
+        });
+
+        return; // Rompe el flujo impidiendo la eliminación física/lógica
+      }
+
+    } catch (error) {
+      console.error('Error al validar dependencias:', error);
+      this.toastr.error('Ocurrió un error al verificar la integridad del producto.', 'Error');
+      return;
+    }
+
+    // 3. Si el producto está libre de dependencias, prosigue el flujo original
     Swal.fire({
       title: '¿Estás seguro?',
       text: 'Este producto ya no estará disponible para la venta.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#2563eb', // Color azul primario de tu paleta
-      cancelButtonColor: '#64748b',  // Color gris de tu paleta
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#64748b',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-      reverseButtons: true           // Mantiene una jerarquía visual limpia en Windows/Web
+      reverseButtons: true
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Apuntamos al documento exacto en Firestore
           const prodDocRef = doc(this.firestore, 'productos_simples', id);
-
-          // Hacemos el borrado lógico cambiando 'activo' a false
           await updateDoc(prodDocRef, { activo: false });
 
-          // Lanzamos el toast de éxito cortito
           this.toastr.success('El producto fue eliminado con éxito.', '¡Eliminado!', {
             timeOut: 2500,
             progressBar: true
@@ -121,4 +177,5 @@ export class ProductoSimpleComponent implements OnInit {
       }
     });
   }
+
 }

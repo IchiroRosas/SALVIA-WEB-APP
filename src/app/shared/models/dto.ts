@@ -27,7 +27,7 @@ export interface UsuarioLogeadoDto {
   empresa_id: string;
 }
 
-export interface SessionStorageInfo{
+export interface SessionStorageInfo {
   nombre_user: string;
   correo_user: string;
   empresa_ruc: string;
@@ -43,7 +43,7 @@ export interface EmpresaAsociadaDto {
   ruc: string;
 }
 
-export interface UsuarioRegistroCompletoDto{
+export interface UsuarioRegistroCompletoDto {
   ruc: string;
   empresaUidReal: string;
   nombreCompleto: string;
@@ -89,4 +89,30 @@ export interface ProductoSimpleListadoDto {
   stock: number;
   unidadMedida: string;
   precioVenta: number;
+  precioCompra: number;
+}
+
+// *************************************
+// INVENTARIO - PRODUCTO COMPUESTO (COMBO)
+// *************************************
+
+// Modelo exacto de cómo se almacena en Firestore
+export interface ProductoCompuestoDb {
+  id?: string;
+  activo: boolean;
+  descripcion_prod_comp: string;
+  empresa_id: string;
+  precio_venta_combo: number;
+  productos_componentes: {
+    producto_simple_id: string;
+    cantidad_necesaria: number;
+    precio_compra_unitario: number;
+  }[];
+}
+
+// Estructura de lo que se muestra en la tabla
+export interface ProductoCompuestoListadoDto {
+  id: string;
+  nombre: string;
+  precioVentaCombo: number;
 }
