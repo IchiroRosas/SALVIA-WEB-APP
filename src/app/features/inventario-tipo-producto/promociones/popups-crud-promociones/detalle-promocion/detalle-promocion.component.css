@@ -1,0 +1,185 @@
+/* Estructura Base del Diálogo (Nativo) */
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.detail-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.btn-close-icon {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-close-icon:hover {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.icon-close {
+  width: 20px;
+  height: 20px;
+}
+
+.dialog-content {
+  padding: 24px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+/* Tarjeta de Resumen Comercial */
+.promo-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.promo-info-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 20px;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  font-size: 1rem;
+}
+
+.price-tag {
+  color: #10b981;
+}
+
+/* Bloque del Producto Componente */
+.product-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.section-subtitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  padding: 12px 16px;
+  margin: 0;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.stock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stock-unit {
+  display: block;
+  margin-top: 2px;
+}
+
+/* Pie del Diálogo */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid #f3f4f6;
+  background-color: #ffffff;
+}
+
+.btn-slate {
+  background-color: #111827;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-slate:hover {
+  background-color: #1f2937;
+}
+
+.loading-box {
+  padding: 40px;
+  text-align: center;
+}
+
+/* ==========================================
+   REUTILIZACIÓN DE TUS ESTILOS DE TABLA ORIGINALES
+   ========================================== */
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.inventory-table th {
+  background-color: #ffffff;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  text-transform: uppercase;
+}
+
+.inventory-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #4b5563;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+/* Modificadores de texto nativos */
+.text-muted { color: #9ca3af; }
+.text-dark { color: #111827; }
+.font-mono { font-family: monospace; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.text-center { text-align: center; }
+.text-sm { font-size: 0.75rem; }
