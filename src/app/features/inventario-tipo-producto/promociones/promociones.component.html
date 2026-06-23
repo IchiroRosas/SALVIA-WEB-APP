@@ -3,9 +3,10 @@
     <tr>
       <th>#</th>
       <th>DESCRIPCIÓN PROMOCIÓN</th>
+      <th>UND. MEDIDA PROMOCIÓN</th>
       <th>PRODUCTO COMPONENTE</th>
       <th class="text-center">CANTIDAD REQUERIDA</th>
-      <th>PRECIO COMBO</th>
+      <th>PRECIO VENTA</th>
       <th class="text-center">ACCIONES</th>
     </tr>
   </thead>
@@ -15,6 +16,8 @@
       <td class="text-muted font-mono">{{ $index + 1 }}</td>
       
       <td class="font-medium text-dark">{{ item.descripcionPromo }}</td>
+
+      <td class="font-medium text-dark">{{ item.unidadMedidaPromo }}</td>
       
       <td>
         <span class="font-medium text-dark">{{ item.productoNombre }}</span>
@@ -22,7 +25,7 @@
       </td>
       
       <td class="text-center font-semibold">
-        {{ item.cantidadNecesaria }} <span class="text-muted text-sm font-mono">/ {{ item.unidadMedidaPromo }}s</span>
+        {{ item.cantidadNecesaria }} <span class="text-muted text-sm font-mono">/ {{ item.unidadMedidaProducto }}</span>
       </td>
       
       <td class="font-semibold text-dark">S/. {{ item.precioTotalPromo | number:'1.2-2' }}</td>

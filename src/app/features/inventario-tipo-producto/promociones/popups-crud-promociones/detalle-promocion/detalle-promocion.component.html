@@ -1,31 +1,27 @@
 <div class="dialog-container">
   <div class="dialog-header">
-    <h2 class="detail-title">Inspección de Promoción Comercial</h2>
-    <button (click Sis)="cerrar()" class="btn-close-icon" title="Cerrar Ventana">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon-close">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-      </svg>
-    </button>
+    <h2 class="detail-title">Detalle de Promoción</h2>
   </div>
 
   <div class="dialog-content">
     <div *ngIf="detalle$ | async as datos; else cargando">
-      
+
       <div class="promo-card">
         <div class="promo-info-grid">
           <div class="info-group">
-            <span class="info-label">Concepto / Descripción</span>
+            <span class="info-label">Descripción</span>
             <span class="info-value text-dark font-medium">{{ datos.promo.descripcion_promo }}</span>
           </div>
           <div class="info-group">
-            <span class="info-label">Precio Especial Combo</span>
-            <span class="info-value price-tag font-semibold">S/. {{ datos.promo.promo_precio_total | number:'1.2-2' }}</span>
+            <span class="info-label">Precio Venta</span>
+            <span class="info-value price-tag font-semibold">S/. {{ datos.promo.promo_precio_total | number:'1.2-2'
+              }}</span>
           </div>
           <div class="info-group">
-            <span class="info-label">Volumen Requerido</span>
+            <span class="info-label">Cantidad Requerida</span>
             <span class="info-value font-semibold">
-              {{ datos.promo.cantidad_necesaria }} 
-              <span class="text-muted text-sm font-mono">/ {{ datos.promo.unidad_medida_promocion }}</span>
+              {{ datos.promo.cantidad_necesaria }}
+              <span class="text-muted text-sm font-mono">/ {{ datos.producto.unidad_medida }}</span>
             </span>
           </div>
         </div>
@@ -33,7 +29,7 @@
 
       <div class="product-section">
         <h3 class="section-subtitle">Detalle del producto componente</h3>
-        
+
         <table class="inventory-table">
           <thead>
             <tr>
@@ -52,7 +48,7 @@
               </td>
               <td class="text-muted">{{ datos.producto.marca_prod }}</td>
               <td class="text-dark font-medium">
-                {{ datos.producto.nombre_proveedor || datos.producto.proveedor || 'Distribuidor Oficial' }}
+                {{ datos.producto.nombre_proveedor }}
               </td>
               <td class="text-center font-semibold">
                 <div class="stock-container">

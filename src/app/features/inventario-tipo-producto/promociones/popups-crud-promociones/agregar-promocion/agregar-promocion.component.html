@@ -1,1 +1,127 @@
-<p>agregar-promocion works!</p>
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="detail-title">Registrar Nueva Promoción</h2>
+    <button (click)="cerrar()" class="btn-close-icon" title="Cerrar Ventana">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+        class="icon-close">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="promoForm" (ngSubmit)="guardar()">
+    <div class="dialog-content">
+
+      <div class="form-group span-6 relative">
+        <label class="form-label">Buscar Producto Base (Simple)</label>
+        <div class="search-input-wrapper">
+          <input type="text" formControlName="buscarProducto" class="form-input search-input"
+            placeholder="Escribe la descripción o marca del producto..." (focus)="mostrarDropdown = true"
+            (blur)="unfocusDropdown()" autocomplete="off">
+
+          <button type="button" *ngIf="productoSeleccionado" class="btn-clear-search" (click)="limpiarSeleccion()">
+            &times;
+          </button>
+        </div>
+
+        <div class="autocomplete-dropdown" *ngIf="mostrarDropdown && (productosFiltrados$ | async) as filtrados">
+          <div *ngFor="let prod of filtrados" class="dropdown-item" (mousedown)="seleccionarProducto(prod)">
+            <span class="item-main">{{ prod.descripcion_prod }}</span>
+            <span class="item-sub">{{ prod.marca_prod }} — Stock actual: {{ prod.stock_actual }} {{ prod.unidad_medida
+              }}</span>
+          </div>
+          <div *ngIf="filtrados.length === 0 && promoForm.get('buscarProducto')?.value" class="dropdown-no-results">
+            No se encontraron coincidencias de productos activos.
+          </div>
+        </div>
+
+        <small class="error-msg"
+          *ngIf="promoForm.get('buscarProducto')?.touched && promoForm.get('producto_simple_id')?.invalid">
+          Debes seleccionar un producto válido.
+        </small>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group span-2">
+          <label class="form-label">Cantidad Requerida</label>
+          <input type="number" formControlName="cantidad_necesaria" class="form-input text-right" min="0">
+          <small class="error-msg"
+            *ngIf="promoForm.get('cantidad_necesaria')?.touched && promoForm.get('cantidad_necesaria')?.invalid">
+            La cantidad debe ser mayor a 0 (Mínimo 0.001). 
+          </small>
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label">UND. MEDIDA DE Producto Base</label>
+          <div class="static-badge-box text-center">
+            {{ productoSeleccionado ? productoSeleccionado.unidad_medida : '---' }}
+          </div>
+          <span class="helper-text text-center">Unidad de medida original</span>
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label">UND. MEDIDA de Promoción</label>
+          <input type="text" formControlName="unidad_medida_promocion" class="form-input"
+            placeholder="Ej: Tripack, Paquete, Pack">
+          <small class="error-msg"
+            *ngIf="promoForm.get('unidad_medida_promocion')?.touched && promoForm.get('unidad_medida_promocion')?.invalid">
+            Especifica la unidad de medida.
+          </small>
+        </div>
+
+        <div class="form-group span-6">
+          <label class="form-label">Nombre de la Promoción</label>
+          <input type="text" formControlName="descripcion_promo" class="form-input"
+            placeholder="Ej: Combo 3 Gaseosas de 3L - Descuento Fin de Mes">
+          <small class="error-msg"
+            *ngIf="promoForm.get('descripcion_promo')?.touched && promoForm.get('descripcion_promo')?.invalid">
+            El nombre es obligatorio (Mínimo 3 caracteres).
+          </small>
+        </div>
+
+        <div class="form-group span-3">
+          <label class="form-label">Costo Compra Acumulado</label>
+          <div class="calculated-box">
+            S/. {{ costoAcumulado | number:'1.2-2' }}
+          </div>
+          <span class="helper-text">Costo de adquisición total sugerido</span>
+        </div>
+
+        <div class="form-group span-3">
+          <label class="form-label">Precio Final Venta</label>
+          <div class="currency-input-wrapper">
+            <span class="currency-prefix">S/.</span>
+            <input type="number" formControlName="promo_precio_total" class="form-input price-input" step="0.01"
+              placeholder="0.00" min="0">
+          </div>
+          <small class="error-msg"
+            *ngIf="promoForm.get('promo_precio_total')?.touched && promoForm.get('promo_precio_total')?.invalid">
+            El precio de venta no puede ser negativo.
+          </small>
+        </div>
+
+      </div>
+
+      <div class="warning-alert-box" *ngIf="mostrarAdvertenciaMargen">
+        <div class="warning-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+        </div>
+        <div class="warning-text">
+          <strong>Advertencia:</strong> El precio de venta establecido dejará un margen de pérdida respecto al costo
+          acumulado de compra del inventario.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" class="btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button type="submit" class="btn-submit" [disabled]="promoForm.invalid">Registrar Promoción</button>
+    </div>
+  </form>
+</div>

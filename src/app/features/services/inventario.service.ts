@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, collectionData, query, where, doc, updateDoc, addDoc, docData, getDocs } from '@angular/fire/firestore';
 import { Observable, combineLatest, switchMap, of } from 'rxjs';
-import { ProductoCompuestoDb, ProductoSimpleDb, ProductoSimpleDoc, PromocionDoc, PromocionTablaDto } from '../../shared/models/dto';
+import { ProductoCompuestoDb, ProductoSimpleDb, ProductoSimpleDoc, PromocionDoc, PromocionTablaDto, PromocionTablaPromDto } from '../../shared/models/dto';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -116,7 +116,7 @@ export class InventarioService {
   }
 
 
-  obtenerPromocionesMapeadas(empresaId: string): Observable<PromocionTablaDto[]> {
+  obtenerPromocionesMapeadas(empresaId: string): Observable<PromocionTablaPromDto[]> {
     const promoRef = collection(this.firestore, 'promociones');
     const promoQuery = query(
       promoRef,
@@ -138,7 +138,7 @@ export class InventarioService {
             productosMap.set(p.id, p);
           }
         });
-        
+
         return promociones.map(promo => {
           const productoAsociado = productosMap.get(promo.producto_simple_id);
 
@@ -148,6 +148,7 @@ export class InventarioService {
             productoNombre: productoAsociado ? productoAsociado.descripcion_prod : 'Producto no encontrado',
             productoMarca: productoAsociado ? productoAsociado.marca_prod : 'N/A',
             cantidadNecesaria: promo.cantidad_necesaria,
+            unidadMedidaProducto: productoAsociado ? productoAsociado.unidad_medida : 'N/A',
             unidadMedidaPromo: promo.unidad_medida_promocion,
             precioTotalPromo: promo.promo_precio_total
           };
@@ -156,25 +157,50 @@ export class InventarioService {
     );
   }
 
-  obtenerDetallePromocionCompleto(promoId: string): Observable<{ promo: PromocionDoc, producto: ProductoSimpleDb } | null> {
-    const promoDocRef = doc(this.firestore, 'promociones', promoId);
+  obtenerDetallePromocionCompleto(promoId: string): Observable<any> {
+    const promoDocRef = doc(this.firestore, `promociones/${promoId}`);
+    const promo$ = docData(promoDocRef, { idField: 'id' }) as Observable<any>;
 
-    return docData(promoDocRef, { idField: 'id' }).pipe(
-      switchMap((promo: any) => {
-        if (!promo) return of(null);
+    const prodRef = collection(this.firestore, 'productos_simples');
+    const productos$ = collectionData(prodRef, { idField: 'id' }) as Observable<any[]>;
 
-        const prodDocRef = doc(this.firestore, 'productos_simples', promo.producto_simple_id);
-        return docData(prodDocRef, { idField: 'id' }).pipe(
-          map((prod: any) => ({
-            promo: promo as PromocionDoc,
-            producto: prod as ProductoSimpleDb
-          }))
-        );
+    const provRef = collection(this.firestore, 'proveedores');
+    const proveedores$ = collectionData(provRef, { idField: 'id' }) as Observable<any[]>;
+
+    return combineLatest([promo$, productos$, proveedores$]).pipe(
+      map(([promo, productos, proveedores]) => {
+        if (!promo) return null;
+
+        // 1. Buscamos el producto asociado a la promoción
+        const producto = productos.find(p => p.id === promo.producto_simple_id);
+        let proveedorTxt = 'Sin proveedor';
+
+        // 2. Si el producto existe y tiene un id_proveedor, buscamos su nombre real
+        if (producto && producto.id_proveedor) {
+          const prov = proveedores.find(p => p.id === producto.id_proveedor);
+          if (prov) {
+            proveedorTxt = prov.nombre_proveedor; // Campo exacto de tu colección de proveedores
+          }
+        }
+
+        return {
+          promo,
+          producto: producto ? {
+            ...producto,
+            nombre_proveedor: proveedorTxt // Lo inyectamos directamente aquí
+          } : null
+        };
       })
     );
   }
 
-
+  /**
+   * Guarda una nueva promoción comercial en Firestore
+   */
+  crearPromocion(promocion: Omit<PromocionDoc, 'id'>): Promise<any> {
+    const colRef = collection(this.firestore, 'promociones');
+    return addDoc(colRef, promocion);
+  }
 
   /**
    * Obtiene el flujo reactivo de productos recurso (recursos internos) activos filtrados por empresa
@@ -220,5 +246,5 @@ export class InventarioService {
     return updateDoc(recursoDocRef, recurso);
   }
 
-  
+
 }

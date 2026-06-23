@@ -181,3 +181,14 @@ export interface PromocionTablaDto {
   unidadMedidaPromo: string;
   precioTotalPromo: number;
 }
+
+export interface PromocionTablaPromDto {
+  id: string;
+  descripcionPromo: string;
+  productoNombre: string;
+  productoMarca: string;
+  cantidadNecesaria: number;
+  unidadMedidaProducto: string;
+  unidadMedidaPromo: string;
+  precioTotalPromo: number;
+}
