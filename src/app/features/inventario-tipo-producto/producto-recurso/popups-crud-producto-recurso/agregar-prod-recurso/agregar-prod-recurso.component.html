@@ -1,1 +1,57 @@
-<p>agregar-prod-recurso works!</p>
+<div class="dialog-container">
+  <header class="dialog-header">
+    <h2>Agregar Recurso Interno</h2>
+    <p>Ingresa los detalles, marcas y costos del nuevo insumo o empaque de la empresa</p>
+  </header>
+
+  <form [formGroup]="recursoForm" (ngSubmit)="guardar()" class="dialog-form">
+
+    <div class="form-group">
+      <label for="descripcion_prod">Descripción del Recurso *</label>
+      <input id="descripcion_prod" type="text" formControlName="descripcion_prod"
+        placeholder="Ej. Paquete de bolsas plásticas x100UND"
+        [class.input-error]="recursoForm.get('descripcion_prod')?.invalid && recursoForm.get('descripcion_prod')?.touched" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group val-half">
+        <label for="marca_prod">Marca</label>
+        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Alpha" />
+      </div>
+
+      <div class="form-group val-half">
+        <label for="precio_compra">Precio Compra (S/.) *</label>
+        <input id="precio_compra" type="number" step="0.01" formControlName="precio_compra"
+          [class.input-error]="recursoForm.get('precio_compra')?.invalid && recursoForm.get('precio_compra')?.touched" />
+      </div>
+    </div>
+
+    <div class="form-group relative-container">
+      <label>Proveedor *</label>
+      <input type="text" [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
+        placeholder="Escribe para buscar un proveedor..." (focus)="showProvDropdown = true"
+        (blur)="showProvDropdown = false; evaluarLimpiezaCelda()" autocomplete="off"
+        [class.input-error]="recursoForm.get('id_proveedor')?.invalid && recursoForm.get('id_proveedor')?.touched" />
+
+      @if (showProvDropdown && proveedoresFiltrados.length > 0) {
+      <ul class="autocomplete-dropdown">
+        @for (prov of proveedoresFiltrados; track prov.id) {
+        <li (mousedown)="seleccionarProveedor(prov)">
+          {{ prov.nombre_proveedor }}
+        </li>
+        }
+      </ul>
+      }
+    </div>
+
+    <footer class="dialog-actions">
+      <button type="button" class="btn-secondary" (click)="cancelar()" [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="recursoForm.invalid || isSubmitting">
+        {{ isSubmitting ? 'Guardando...' : 'Registrar Recurso' }}
+      </button>
+    </footer>
+
+  </form>
+</div>
