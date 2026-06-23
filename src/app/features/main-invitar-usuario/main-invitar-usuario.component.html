@@ -1,0 +1,55 @@
+<div class="gestion-card-container">
+  
+  <header class="gestion-header">
+    <div class="header-left-group">
+      <mat-icon class="icon-primary">mail_outline</mat-icon>
+      <h2>Invitaciones Pendientes</h2>
+    </div>
+    <button class="btn-icon-close" (click)="volver()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="divider-line"></div>
+
+  <div class="gestion-body">
+    @if (isLoading) {
+      <div class="loading-placeholder">
+        <span class="spinner"></span>
+        <p>Buscando invitaciones pendientes...</p>
+      </div>
+    } @else {
+      <div class="table-responsive-wrapper">
+        <table class="salvia-users-table">
+          <thead>
+            <tr>
+              <th style="width: 60px; text-align: center;">#</th>
+              <th>Nombre completo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of invitadosPendientes; track item.id; let idx = $index) {
+              <tr>
+                <td style="text-align: center;" class="text-muted font-monospace">{{ idx + 1 }}</td>
+                <td class="user-fullname">{{ item.nombre_user }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="2" class="table-empty-state">
+                  <mat-icon class="empty-icon">mark_email_read</mat-icon>
+                  <p>No hay invitaciones pendientes.</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <footer class="action-footer-row">
+    <button class="btn-secondary" (click)="volver()">Volver</button>
+    <button class="btn-primary-salvia" (click)="siguiente()">Siguiente</button>
+  </footer>
+
+</div>

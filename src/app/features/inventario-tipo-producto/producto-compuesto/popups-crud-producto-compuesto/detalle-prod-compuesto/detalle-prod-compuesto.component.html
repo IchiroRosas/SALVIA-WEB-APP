@@ -1,0 +1,103 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <h2>Detalle del Producto Compuesto</h2>
+        <p class="subtitle">Consulta la receta de componentes y costos mínimos calculados para este Combo</p>
+    </div>
+
+    @if (cargando) {
+    <div class="modal-loading-state">
+        <div class="custom-spinner"></div>
+        <p class="loading-text">Conectando con la base de datos de inventario...</p>
+    </div>
+    } @else {
+    <div class="modal-form">
+
+        <div class="form-row">
+            <div class="form-group flex-3">
+                <label>Nombre del Combo</label>
+                <div class="form-control value-view font-medium">
+                    {{ comboData?.descripcion_prod_comp }}
+                </div>
+            </div>
+
+            <div class="form-group flex-1">
+                <label>Precio Venta</label>
+                <div class="form-control value-view font-semibold text-dark">
+                    S/. {{ comboData?.precio_venta_combo | number:'1.2-2' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="components-section">
+            <h3>Productos Componentes</h3>
+            <p class="section-desc">Artículos asignados que descuentan stock al vender este combo</p>
+
+            <div class="form-array-container">
+                @for (item of comboData?.productos_componentes; track $index; let i = $index) {
+                <div class="component-row">
+
+                    <div class="form-group flex-3">
+                        <label *ngIf="i === 0">Producto Simple</label>
+                        <div class="form-control value-view truncate-text" [title]="item.descripcion_prod">
+                            {{ item.descripcion_prod }}
+                        </div>
+                    </div>
+
+                    <div class="form-group ref-marca">
+                        <label *ngIf="i === 0">Marca</label>
+                        <div class="static-value marca-badge" [title]="item.marca_prod">
+                            {{ item.marca_prod }}
+                        </div>
+                    </div>
+
+                    <div class="form-group flex-1">
+                        <label *ngIf="i === 0" class="text-center">Cantidad</label>
+                        <div class="form-control value-view text-center font-medium">
+                            {{ item.cantidad_necesaria }}
+                        </div>
+                    </div>
+
+                    <div class="form-group ref-um">
+                        <label *ngIf="i === 0">U. Medida</label>
+                        <div class="static-value unit-badge">
+                            {{ item.unidad_medida }}
+                        </div>
+                    </div>
+
+                    <div class="form-group ref-cost">
+                        <label *ngIf="i === 0">Ref. Costo</label>
+                        <div class="static-value font-semibold">
+                            S/. {{ (item.cantidad_necesaria * item.precio_compra_unitario) | number:'1.2-2' }}
+                        </div>
+                    </div>
+
+                </div>
+                } @empty {
+                <div class="text-center py-4 text-muted italic">
+                    Este combo no contiene productos componentes asociados en la base de datos.
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="summary-footer-panel">
+            <div class="cost-summary">
+                <span>Costo de Producción Mínimo Acumulado:</span>
+                <strong class="text-dark">S/. {{ totalCostoAcumulado | number:'1.2-2' }}</strong>
+            </div>
+            <div class="cost-summary margin-top-xs">
+                <span>Margen Comercial Real Estimado:</span>
+                <strong
+                    [ngClass]="(comboData?.precio_venta_combo - totalCostoAcumulado) >= 0 ? 'text-success' : 'text-danger'">
+                    S/. {{ (comboData?.precio_venta_combo - totalCostoAcumulado) | number:'1.2-2' }}
+                </strong>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+        </div>
+
+    </div>
+    }
+</div>

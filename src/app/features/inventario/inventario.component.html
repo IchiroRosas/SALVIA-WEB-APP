@@ -1,0 +1,116 @@
+<div class="inventory-wrapper">
+
+  <button class="btn-back" (click)="volver()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+      class="icon-back">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+    </svg>
+    Volver
+  </button>
+
+  <header class="inventory-header">
+    <div class="header-left">
+      <h1>Gestión de Inventario</h1>
+      <p>Controla el stock y estado de todos tus productos</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="irCategorias()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+        </svg>
+        Categorías
+      </button>
+      <button class="btn-secondary" (click)="irProveedores()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+        </svg>
+        Proveedores
+      </button>
+    </div>
+  </header>
+
+  <div class="inventory-layout">
+
+    <aside class="sidebar-categories">
+      <span class="sidebar-label">TIPO DE PRODUCTO</span>
+      <nav class="sidebar-nav">
+        <button [class.active]="activeTab === 'simples'" (click)="activeTab = 'simples'">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-icon">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          </svg>
+          Productos Simples
+        </button>
+        <button [class.active]="activeTab === 'compuestos'" (click)="activeTab = 'compuestos'">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-icon">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+          </svg>
+          Productos Compuestos
+        </button>
+        <button [class.active]="activeTab === 'promociones'" (click)="activeTab = 'promociones'">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-icon">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01" />
+          </svg>
+          Promociones
+        </button>
+        <button [class.active]="activeTab === 'recursos'" (click)="activeTab = 'recursos'">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-icon">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+          </svg>
+          Recursos Internos
+        </button>
+      </nav>
+    </aside>
+
+    <main class="table-container-card">
+
+      <div class="table-card-header">
+        <div class="table-card-title">
+          <h2>Lista de Productos</h2>
+          <span>Control de registros</span>
+        </div>
+        <div class="table-card-filters">
+          <div class="search-input-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="search-icon">
+              <circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M21 21l-4.35-4.35" />
+            </svg>
+            <input type="text" placeholder="Buscar...">
+          </div>
+          <button class="btn-filter">Filtrar</button>
+          @if (esAdmin()){
+          <button class="btn-primary-add" (click)="agregarElemento()">
+            <span>+ Agregar</span>
+          </button>
+          }
+        </div>
+      </div>
+
+      <div class="responsive-table-scroll">
+        @switch (activeTab) {
+        @case ('simples') {
+        <app-producto-simple></app-producto-simple>
+        }
+        @case ('compuestos') {
+        <app-producto-compuesto></app-producto-compuesto>
+        }
+        @case ('promociones') {
+        <app-promociones></app-promociones>
+        }
+        @case ('recursos') {
+        <app-producto-recurso></app-producto-recurso>
+        }
+        }
+      </div>
+
+    </main>
+  </div>
+</div>

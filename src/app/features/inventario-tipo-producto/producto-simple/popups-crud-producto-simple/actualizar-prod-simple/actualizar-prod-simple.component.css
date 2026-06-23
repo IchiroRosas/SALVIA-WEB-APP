@@ -1,0 +1,162 @@
+.dialog-container {
+    padding: 24px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.dialog-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.dialog-header p {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 6px 0 0 0;
+}
+
+.dialog-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Manejo de contenedores relativos para posicionar los dropdowns flotantes */
+.relative-container {
+    position: relative;
+}
+
+.form-group label {
+    font-size: 0.813rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.form-group input.input-error {
+    border-color: #ef4444;
+}
+
+/* Distribución en Filas de Columnas Múltiples */
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-row-three {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row-three .form-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.val-half {
+    flex: 1;
+}
+
+/* 🌟 ESTILOS DEL DROPDOWN DE AUTOCOMPLETADO INTERNO */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin: 4px 0 0 0;
+    padding: 6px 0;
+    list-style: none;
+    max-height: 160px;
+    overflow-y: auto;
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.autocomplete-dropdown li {
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.autocomplete-dropdown li:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* Botonera inferior */
+.dialog-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #1d4ed8;
+}
+
+.btn-primary:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: #f9fafb;
+}
+
+.loading-state {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+}

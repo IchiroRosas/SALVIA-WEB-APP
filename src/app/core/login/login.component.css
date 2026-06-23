@@ -1,0 +1,205 @@
+:host {
+    --color-primary: #3287bd;   
+    --color-primary-rgb: 50, 135, 189; 
+    --color-secondary: #9cddc6; 
+    --color-white: #ffffff;
+    --color-dark-text: #333333;
+    --color-shadow: rgba(0, 0, 0, 0.15);
+}
+
+.login-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.login-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(var(--color-primary-rgb), 0.06), rgba(var(--color-primary-rgb), 0.06)), 
+        url('/login-bg-img.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: brightness(75%) saturate(1.05);
+    z-index: 0;
+}
+
+.login-box {
+    position: relative;
+    z-index: 1;
+    background-color: rgba(var(--color-primary-rgb), 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 1.5rem;
+    padding: 3rem 2rem;
+    width: min(25rem, 90%);
+    text-align: center;
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.18);
+    border: 3px solid var(--color-white);
+}
+
+.login-box form {
+    width: min(20rem, 100%);
+    margin: 0 auto;
+    display: block;
+}
+
+.logo {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo img {
+    width: 12rem;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.input-group input {
+    width: 90%;
+    padding: 0.6rem 0.75rem;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    font-style: italic;
+    color: #fff;
+    opacity: 1;
+}
+
+.input-group input:focus {
+    border-bottom-color: var(--color-secondary);
+}
+
+/* 🌟 NUEVO: Contenedor Flex para los botones */
+.actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+    display: inline-flex;
+    line-height: 30px;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    color: black;
+    border: none;
+    border-radius: 50px;
+    padding: 0.6rem 1rem;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.03rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    flex: 1; /* Hace que use todo el espacio restante al lado de Google */
+}
+
+.btn-primary:hover {
+    background-color: rgba(218, 218, 218, 0.883);
+}
+
+.btn-primary:disabled {
+    background-color: rgba(255, 255, 255, 0.6);
+    cursor: not-allowed;
+}
+
+/* 🌟 NUEVO: Estilo específico para el botón de Google */
+.btn-google {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 48px; /* Mismo alto proporcional que el btn-primary */
+    height: 48px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    flex-shrink: 0; /* Evita que el flexbox lo deforme o aplaste */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-google:hover {
+    background-color: rgba(218, 218, 218, 0.883);
+    transform: scale(1.04);
+}
+
+.btn-google:disabled {
+    background-color: rgba(255, 255, 255, 0.6);
+    cursor: not-allowed;
+}
+
+/* 🌟 NUEVO: Bloque de Links de Registro */
+.links-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.login-link {
+    color: var(--color-white);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease, opacity 0.2s ease;
+    opacity: 0.85;
+}
+
+.login-link:hover {
+    color: var(--color-secondary);
+    text-decoration: underline;
+    opacity: 1;
+}
+
+.error-message {
+    color: #d93025; 
+    font-size: 0.85em;
+    margin-top: 5px; 
+    font-weight: 500;
+    padding-left: 5px;
+}
+
+.general-error {
+    background-color: #fce8e6;
+    padding: 10px 15px;
+    color: #d93025;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}

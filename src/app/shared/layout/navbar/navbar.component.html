@@ -1,0 +1,37 @@
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="brand-logo">
+        <img src="/logo-salvia-2.png" alt="Salvia Logo">
+      </div>
+      <span class="brand-name">Salvia</span>
+    </div>
+
+    <div class="nav-right" style="position: relative;">
+      <div class="user-profile" (click)="toggleUserMenu(); $event.stopPropagation()">
+        <mat-icon class="user-avatar-icon">account_circle</mat-icon>
+        <span class="user-name">{{ nombreUsuario }}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="dropdown-svg"
+          [style.transform]="isMenuOpen ? 'rotate(180deg)' : 'none'">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="m6 9l6 6l6-6" />
+        </svg>
+      </div>
+
+      @if (isMenuOpen) {
+      <div class="user-dropdown-menu">
+        <button class="dropdown-item" (click)="abrirPerfil()">
+          <mat-icon>person</mat-icon> Mi perfil
+        </button>
+        @if (isAdmin()) {
+        <button class="dropdown-item" (click)="abrirGestionarUsuarios()">
+          <mat-icon>group</mat-icon> Gestionar usuarios
+        </button>
+        }
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item text-danger" (click)="logout()">
+          <mat-icon>logout</mat-icon> Salir
+        </button>
+      </div>
+      }
+    </div>
+  </header>
