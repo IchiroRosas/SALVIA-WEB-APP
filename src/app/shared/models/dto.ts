@@ -116,3 +116,68 @@ export interface ProductoCompuestoListadoDto {
   nombre: string;
   precioVentaCombo: number;
 }
+
+// *************************************
+  // INVENTARIO - PRODUCTO RECURSO 
+  // *************************************
+
+  // Modelo exacto de cómo se almacena un Recurso Interno en Firestore
+  export interface ProductoRecursoDb {
+    id?: string;
+    activo: boolean;
+    descripcion_prod: string;
+    empresa_id: string;
+    id_proveedor: string;
+    marca_prod: string;
+    precio_compra: number;
+  }
+
+  // Estructura limpia adaptada para las columnas de la tabla (sin columna Estado)
+  export interface ProductoRecursoListadoDto {
+    id: string;
+    customId: string;
+    nombre: string;
+    marca: string;
+    proveedor: string;
+    precioCompra: number;
+  }
+
+  // *************************************
+// INVENTARIO - PROMOCION
+// *************************************
+
+
+// Estructura tal cual viene de Firestore
+export interface ProductoSimpleDoc {
+  id: string;
+  activo: boolean;
+  descripcion_prod: string;
+  empresa_id: string;
+  marca_prod: string;
+  precio_compra_unitario: number;
+  precio_venta_unitario: number;
+  stock_actual: number;
+  unidad_medida: string;
+}
+
+export interface PromocionDoc {
+  id: string;
+  activo: boolean;
+  cantidad_necesaria: number;
+  descripcion_promo: string;
+  empresa_id: string;
+  producto_simple_id: string;
+  promo_precio_total: number;
+  unidad_medida_promocion: string;
+}
+
+// DTO definitivo mapeado para renderizar la tabla de forma ágil
+export interface PromocionTablaDto {
+  id: string;
+  descripcionPromo: string;
+  productoNombre: string;
+  productoMarca: string;
+  cantidadNecesaria: number;
+  unidadMedidaPromo: string;
+  precioTotalPromo: number;
+}

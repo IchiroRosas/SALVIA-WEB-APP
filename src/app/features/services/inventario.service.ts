@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, collectionData, query, where, doc, updateDoc, addDoc, docData, getDocs } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-import { ProductoCompuestoDb, ProductoSimpleDb } from '../../shared/models/dto';
+import { Observable, combineLatest, switchMap, of } from 'rxjs';
+import { ProductoCompuestoDb, ProductoSimpleDb, ProductoSimpleDoc, PromocionDoc, PromocionTablaDto } from '../../shared/models/dto';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -114,4 +115,110 @@ export class InventarioService {
     return docData(prodDocRef, { idField: 'id' });
   }
 
+
+  obtenerPromocionesMapeadas(empresaId: string): Observable<PromocionTablaDto[]> {
+    const promoRef = collection(this.firestore, 'promociones');
+    const promoQuery = query(
+      promoRef,
+      where('empresa_id', '==', empresaId),
+      where('activo', '==', true)
+    );
+    const promociones$ = collectionData(promoQuery, { idField: 'id' }) as Observable<PromocionDoc[]>;
+
+    const prodRef = collection(this.firestore, 'productos_simples');
+    const prodQuery = query(prodRef, where('empresa_id', '==', empresaId));
+    const productos$ = collectionData(prodQuery, { idField: 'id' }) as Observable<ProductoSimpleDoc[]>;
+
+    return combineLatest([promociones$, productos$]).pipe(
+      map(([promociones, productos]) => {
+        const productosMap = new Map<string, ProductoSimpleDoc>();
+
+        productos.forEach(p => {
+          if (p.id) {
+            productosMap.set(p.id, p);
+          }
+        });
+        
+        return promociones.map(promo => {
+          const productoAsociado = productosMap.get(promo.producto_simple_id);
+
+          return {
+            id: promo.id || '',
+            descripcionPromo: promo.descripcion_promo,
+            productoNombre: productoAsociado ? productoAsociado.descripcion_prod : 'Producto no encontrado',
+            productoMarca: productoAsociado ? productoAsociado.marca_prod : 'N/A',
+            cantidadNecesaria: promo.cantidad_necesaria,
+            unidadMedidaPromo: promo.unidad_medida_promocion,
+            precioTotalPromo: promo.promo_precio_total
+          };
+        });
+      })
+    );
+  }
+
+  obtenerDetallePromocionCompleto(promoId: string): Observable<{ promo: PromocionDoc, producto: ProductoSimpleDb } | null> {
+    const promoDocRef = doc(this.firestore, 'promociones', promoId);
+
+    return docData(promoDocRef, { idField: 'id' }).pipe(
+      switchMap((promo: any) => {
+        if (!promo) return of(null);
+
+        const prodDocRef = doc(this.firestore, 'productos_simples', promo.producto_simple_id);
+        return docData(prodDocRef, { idField: 'id' }).pipe(
+          map((prod: any) => ({
+            promo: promo as PromocionDoc,
+            producto: prod as ProductoSimpleDb
+          }))
+        );
+      })
+    );
+  }
+
+
+
+  /**
+   * Obtiene el flujo reactivo de productos recurso (recursos internos) activos filtrados por empresa
+   */
+  obtenerProductosRecursoActivos(empresaId: string): Observable<any[]> {
+    const recursosQuery = query(
+      collection(this.firestore, 'producto_recurso'),
+      where('empresa_id', '==', empresaId),
+      where('activo', '==', true)
+    );
+    return collectionData(recursosQuery, { idField: 'id' });
+  }
+
+  /**
+   * Realiza el borrado lógico de un producto recurso (recurso interno)
+   */
+  eliminarProductoRecurso(id: string): Promise<void> {
+    const recursoDocRef = doc(this.firestore, 'producto_recurso', id);
+    return updateDoc(recursoDocRef, { activo: false });
+  }
+
+  /**
+   * Obtiene un producto recurso por su UID en tiempo real
+   */
+  obtenerProductoRecursoPorId(id: string): Observable<any> {
+    const recursoDocRef = doc(this.firestore, 'producto_recurso', id);
+    return docData(recursoDocRef, { idField: 'id' });
+  }
+
+  /**
+   * Inserta un nuevo producto recurso en la colección 'producto_recurso'
+   */
+  crearProductoRecurso(recurso: any): Promise<any> {
+    const colRef = collection(this.firestore, 'producto_recurso');
+    return addDoc(colRef, recurso);
+  }
+
+  /**
+   * Actualiza un producto recurso existente de forma parcial
+   */
+  actualizarProductoRecurso(id: string, recurso: Partial<any>): Promise<void> {
+    const recursoDocRef = doc(this.firestore, 'producto_recurso', id);
+    return updateDoc(recursoDocRef, recurso);
+  }
+
+  
 }
