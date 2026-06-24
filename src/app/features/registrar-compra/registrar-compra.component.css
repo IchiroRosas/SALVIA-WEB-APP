@@ -1,0 +1,376 @@
+.dialog-container {
+    padding: 24px;
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* 🌟 BOTÓN VOLVER (NUEVO) */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+}
+
+.btn-back:hover {
+  background-color: #f9fafb;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+.btn-back svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* 🌟 BARRA DE PESTAÑAS (TAB SWITCHER) */
+.tab-switcher {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+    padding-bottom: 2px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #4b5563;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: #111827;
+    background-color: #f3f4f6;
+}
+
+.tab-btn.active {
+    color: #2563eb;
+    background-color: #eff6ff;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #2563eb;
+    border-radius: 2px;
+}
+
+.dialog-header h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.dialog-header p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 6px 0 0 0;
+    line-height: 1.4;
+}
+
+.dialog-form {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.relative-container {
+    position: relative;
+}
+
+.form-group label {
+    font-size: 0.813rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group input, 
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+    color: #111827;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.form-group input.disabled-styled {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+/* Maneja de forma totalmente simétrica tanto las 2 como las 3 columnas */
+.form-row-three {
+    display: flex;
+    gap: 16px;
+}
+
+.form-row-three .form-group,
+.val-half {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 🌟 EXTENSIÓN PARA EL DROPDOWN DE AUTOCOMPLETADO */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin: 4px 0 0 0;
+    padding: 6px 0;
+    list-style: none;
+    max-height: 210px;
+    overflow-y: auto;
+    z-index: 999;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.autocomplete-dropdown li {
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.autocomplete-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-dropdown li:hover {
+    background-color: #f3f4f6;
+}
+
+.autocomplete-dropdown .main-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.autocomplete-dropdown .sub-info {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* 🌟 CAJA DE PANEL INFORMATIVO DE CÁLCULO */
+.calculation-summary-box {
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 8px;
+}
+
+.calculation-summary-box h3 {
+    margin: 0 0 12px 0;
+    font-size: 0.813rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.calc-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.full-width-item {
+    grid-column: span 2;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+    margin-top: 4px;
+}
+
+.calc-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.calc-value {
+    font-size: 0.938rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.calc-value.font-highlight {
+    color: #2563eb;
+}
+
+.total-main {
+    font-size: 1.25rem;
+    color: #0f172a;
+}
+
+.calculation-summary-box.resource-theme {
+    background-color: #fdf8f6;
+    border-color: #f1dfd8;
+}
+.single-line-total {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-top: none !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.dialog-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-primary {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #1d4ed8;
+}
+
+.btn-primary:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+}
+
+.btn-recurso-theme {
+    background-color: #ea580c;
+}
+.btn-recurso-theme:hover:not(:disabled) {
+    background-color: #c2410c;
+}
+.btn-recurso-theme:disabled {
+    background-color: #ffedd5;
+    color: #c2410c;
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: #f9fafb;
+}
+
+.toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background-color: #10b981;
+    color: #ffffff;
+    padding: 14px 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toast-icon {
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+}
+
+.toast-text {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100px) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}

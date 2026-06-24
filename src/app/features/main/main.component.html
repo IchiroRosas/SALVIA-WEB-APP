@@ -133,7 +133,9 @@
             </div>
           </a>
 
-          <a (click)="mostrarAgregarProdSimple()" class="module-card">
+          <a (click)="isAdmin() ? mostrarAgregarProdSimple() : null" class="module-card"
+            [class.module-card-disabled]="!isAdmin()">
+
             <div class="module-icon-box">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="module-svg">
                 <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
