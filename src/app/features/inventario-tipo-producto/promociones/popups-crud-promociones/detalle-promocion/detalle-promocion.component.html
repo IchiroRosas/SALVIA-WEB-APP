@@ -1,0 +1,78 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="detail-title">Detalle de Promoción</h2>
+  </div>
+
+  <div class="dialog-content">
+    <div *ngIf="detalle$ | async as datos; else cargando">
+
+      <div class="promo-card">
+        <div class="promo-info-grid">
+          <div class="info-group">
+            <span class="info-label">Descripción</span>
+            <span class="info-value text-dark font-medium">{{ datos.promo.descripcion_promo }}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Precio Venta</span>
+            <span class="info-value price-tag font-semibold">S/. {{ datos.promo.promo_precio_total | number:'1.2-2'
+              }}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Cantidad Requerida</span>
+            <span class="info-value font-semibold">
+              {{ datos.promo.cantidad_necesaria }}
+              <span class="text-muted text-sm font-mono">/ {{ datos.producto.unidad_medida }}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-section">
+        <h3 class="section-subtitle">Detalle del producto componente</h3>
+
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th>PRODUCTO</th>
+              <th>MARCA</th>
+              <th>PROVEEDOR</th>
+              <th class="text-center">STOCK ACTUAL</th>
+              <th>PRECIO DE COMPRA</th>
+              <th>PRECIO DE VENTA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="font-medium text-dark">{{ datos.producto.descripcion_prod }}</div>
+              </td>
+              <td class="text-muted">{{ datos.producto.marca_prod }}</td>
+              <td class="text-dark font-medium">
+                {{ datos.producto.nombre_proveedor }}
+              </td>
+              <td class="text-center font-semibold">
+                <div class="stock-container">
+                  <span class="stock-number">{{ datos.producto.stock_actual }}</span>
+                  <span class="stock-unit text-muted text-sm font-normal">{{ datos.producto.unidad_medida }}</span>
+                </div>
+              </td>
+              <td class="font-semibold text-muted">S/. {{ datos.producto.precio_compra_unitario | number:'1.2-2' }}</td>
+              <td class="font-semibold text-dark">S/. {{ datos.producto.precio_venta_unitario | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <ng-template #cargando>
+      <div class="loading-box text-muted">
+        <p>Sincronizando información de los repositorios de inventario...</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="dialog-actions">
+    <button (click)="cerrar()" class="btn-slate">Cerrar</button>
+  </div>
+</div>
