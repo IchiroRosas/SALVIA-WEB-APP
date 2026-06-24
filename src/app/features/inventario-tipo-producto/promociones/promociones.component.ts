@@ -6,6 +6,8 @@ import { InventarioService } from '../../services/inventario.service';
 import { PromocionTablaDto, PromocionTablaPromDto } from '../../../shared/models/dto';
 import { DetallePromocionComponent } from '../promociones/popups-crud-promociones/detalle-promocion/detalle-promocion.component';
 import { ActualizarPromocionComponent } from './popups-crud-promociones/actualizar-promocion/actualizar-promocion.component';
+import Swal from 'sweetalert2';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-promociones',
@@ -18,6 +20,7 @@ import { ActualizarPromocionComponent } from './popups-crud-promociones/actualiz
 export class PromocionesComponent implements OnInit {
   private inventarioService = inject(InventarioService);
   private dialog = inject(MatDialog);
+  private toastr = inject(ToastrService);
 
   promocionesMapeadas$!: Observable<PromocionTablaPromDto[]>;
   esAdmin = signal<boolean>(true); // Tu lógica de roles habitual
@@ -48,6 +51,27 @@ export class PromocionesComponent implements OnInit {
   }
 
   eliminarPromo(id: string): void {
-    console.log('Eliminar promo:', id);
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta promoción se dará de baja.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await this.inventarioService.eliminarPromocion(id);
+          this.toastr.success('La promoción fue eliminada con éxito.', '¡Eliminada!');
+        } catch (error) {
+          console.error(error);
+          this.toastr.error('No se pudo eliminar la promoción.', 'Error');
+        }
+      }
+    });
   }
+
 }

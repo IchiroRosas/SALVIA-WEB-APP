@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, collectionData, query, where, doc, updateDoc, addDoc, docData, getDocs } from '@angular/fire/firestore';
-import { Observable, combineLatest, switchMap, of } from 'rxjs';
+import { Observable, combineLatest, switchMap, of, from } from 'rxjs';
 import { ProductoCompuestoDb, ProductoSimpleDb, ProductoSimpleDoc, PromocionDoc, PromocionTablaDto, PromocionTablaPromDto } from '../../shared/models/dto';
 import { map } from 'rxjs/operators';
+import { getDoc } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -194,12 +195,36 @@ export class InventarioService {
     );
   }
 
+  obtenerPromocionPorId(promoId: string): Observable<any> {
+    const docRef = doc(this.firestore, 'promociones', promoId);
+    return from(getDoc(docRef).then(snapshot => {
+      if (snapshot.exists()) {
+        return { id: snapshot.id, ...snapshot.data() };
+      }
+      return null;
+    }));
+  }
+
+  /**
+   * Modifica los campos editables de una promoción existente
+   */
+  actualizarPromocion(promoId: string, data: any): Promise<void> {
+    const docRef = doc(this.firestore, 'promociones', promoId);
+    return updateDoc(docRef, data);
+  }
+
   /**
    * Guarda una nueva promoción comercial en Firestore
    */
   crearPromocion(promocion: Omit<PromocionDoc, 'id'>): Promise<any> {
     const colRef = collection(this.firestore, 'promociones');
     return addDoc(colRef, promocion);
+  }
+
+  eliminarPromocion(promoId: string): Promise<void> {
+    const recursoDocRef = doc(this.firestore, 'promociones', promoId);
+    return updateDoc(recursoDocRef, { activo: false });
+
   }
 
   /**
