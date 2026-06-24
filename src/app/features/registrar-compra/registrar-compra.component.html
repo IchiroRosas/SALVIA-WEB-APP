@@ -1,1 +1,188 @@
-<p>registrar-compra works!</p>
+<div class="dialog-container">
+  <button type="button" class="btn-back" (click)="volver()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+    </svg>
+    Volver
+  </button>
+
+  <div class="tab-switcher">
+    <button type="button" class="tab-btn" [class.active]="tipoProducto === 'simple'" (click)="cambiarTipo('simple')">
+      Producto Simple
+    </button>
+    <button type="button" class="tab-btn" [class.active]="tipoProducto === 'recurso'" (click)="cambiarTipo('recurso')">
+      Producto de Recurso
+    </button>
+  </div>
+
+  <header class="dialog-header">
+    <h2>Registrar Abastecimiento de Almacén</h2>
+    <p>
+      {{ tipoProducto === 'simple' 
+         ? 'Incrementa existencias y recalcula costos unitarios de tus artículos en góndola.' 
+         : 'Registra los gastos operativos y compras de insumos/recursos internos de tu empresa.' }}
+    </p>
+  </header>
+
+  @if (tipoProducto === 'simple') {
+    <form [formGroup]="compraSimpleForm" (ngSubmit)="guardarCompra()" class="dialog-form">
+      
+      <div class="form-group relative-container">
+        <label>Buscar Producto Simple *</label>
+        <input type="text" [(ngModel)]="buscarSimpleStr" [ngModelOptions]="{standalone: true}"
+          placeholder="Escribe la descripción o marca del producto..." 
+          (focus)="showSimpleDropdown = true"
+          (input)="filtrarProductosSimples(buscarSimpleStr)"
+          (blur)="evaluarLimpiezaCelda('simple')" autocomplete="off" />
+
+        @if (showSimpleDropdown && productosSimplesFiltrados.length > 0) {
+          <ul class="autocomplete-dropdown">
+            @for (prod of productosSimplesFiltrados; track prod.id) {
+              <li (mousedown)="seleccionarProductoSimple(prod)">
+                <div class="main-name">{{ prod.descripcion_prod }}</div>
+                <div class="sub-info">Marca: {{ prod.marca_prod || 'Sin marca' }} • Prov: {{ prod.nombre_proveedor }}</div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group val-half">
+          <label for="formato_compra_id">Formato de Compra *</label>
+          <select id="formato_compra_id" formControlName="formato_compra_id" (change)="onFormatChange($event)"
+            [class.input-error]="compraSimpleForm.get('formato_compra_id')?.invalid && compraSimpleForm.get('formato_compra_id')?.touched">
+            <option value="" disabled selected>Selecciona Formato</option>
+            @for (fmt of formatosCompra; track fmt.id) {
+              <option [value]="fmt.id">{{ fmt.descripcion_formato_compra }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group val-half">
+          <label for="cantidad_formato_comprado">Cantidad de Formatos a Comprar *</label>
+          <input id="cantidad_formato_comprado" type="number" formControlName="cantidad_formato_comprado" />
+        </div>
+      </div>
+
+      <div class="form-row-three">
+        <div class="form-group">
+          <label for="unidades_por_formato">Unidades por Formato *</label>
+          <input id="unidades_por_formato" type="number" formControlName="unidades_por_formato" placeholder="Ej. 24" />
+        </div>
+
+        <div class="form-group">
+          <label>Und. de Medida (Producto)</label>
+          <input type="text" [value]="productoSimpleSeleccionado?.unidad_medida || 'Unidad'" class="disabled-styled" disabled />
+        </div>
+
+        <div class="form-group">
+          <label for="costo_por_formato">Costo por Formato (S/.) *</label>
+          <input id="costo_por_formato" type="number" step="0.01" formControlName="costo_por_formato" placeholder="0.00" />
+        </div>
+      </div>
+
+      <div class="calculation-summary-box">
+        <h3>Resumen del Abastecimiento</h3>
+        <div class="calc-grid">
+          <div class="calc-item">
+            <span class="calc-label">Costo Unitario Calculado:</span>
+            <span class="calc-value font-highlight">S/. {{ compraSimpleForm.get('costo_unitario_calculado')?.value }}</span>
+          </div>
+          <div class="calc-item">
+            <span class="calc-label">Total Unidades a Ingresar:</span>
+            <span class="calc-value">{{ compraSimpleForm.get('total_unidades_ingresadas')?.value }} UND</span>
+          </div>
+          <div class="calc-item full-width-item">
+            <span class="calc-label">COSTO TOTAL OPERACIÓN:</span>
+            <span class="calc-value total-main">S/. {{ compraSimpleForm.get('costo_total_operacion')?.value | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="dialog-actions">
+        <button type="button" class="btn-secondary" (click)="limpiarFormulario()" [disabled]="isSubmitting">
+          Limpiar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="compraSimpleForm.invalid || isSubmitting">
+          {{ isSubmitting ? 'Guardando Lote...' : 'Registrar Compra Simple' }}
+        </button>
+      </footer>
+    </form>
+  }
+
+  @if (tipoProducto === 'recurso') {
+    <form [formGroup]="compraRecursoForm" (ngSubmit)="guardarCompra()" class="dialog-form">
+      
+      <div class="form-group relative-container">
+        <label>Buscar Insumo / Recurso *</label>
+        <input type="text" [(ngModel)]="buscarRecursoStr" [ngModelOptions]="{standalone: true}"
+          placeholder="Escribe el nombre del recurso a abastecer..." 
+          (focus)="showRecursoDropdown = true"
+          (input)="filtrarProductosRecurso(buscarRecursoStr)"
+          (blur)="evaluarLimpiezaCelda('recurso')" autocomplete="off" />
+
+        @if (showRecursoDropdown && productosRecursoFiltrados.length > 0) {
+          <ul class="autocomplete-dropdown">
+            @for (rec of productosRecursoFiltrados; track rec.id) {
+              <li (mousedown)="seleccionarProductoRecurso(rec)">
+                <div class="main-name">{{ rec.descripcion_prod }}</div>
+                <div class="sub-info">Marca: {{ rec.marca_prod || 'Sin marca' }} • Prov: {{ rec.nombre_proveedor }}</div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group val-half">
+          <label>Marca del Insumo</label>
+          <input type="text" formControlName="marca_prod" class="disabled-styled" />
+        </div>
+        <div class="form-group val-half">
+          <label>Proveedor Responsable</label>
+          <input type="text" formControlName="nombre_proveedor" class="disabled-styled" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group val-half">
+          <label for="precio_compra">Precio Compra Unitario (S/.) *</label>
+          <input id="precio_compra" type="number" step="0.01" formControlName="precio_compra" />
+        </div>
+
+        <div class="form-group val-half">
+          <label for="cantidad">Cantidad Comprada *</label>
+          <input id="cantidad" type="number" step="0.001" formControlName="cantidad" placeholder="Admite decimales" />
+        </div>
+      </div>
+
+      <div class="calculation-summary-box resource-theme">
+        <div class="calc-grid">
+          <div class="calc-item full-width-item single-line-total">
+            <span class="calc-label">COSTO TOTAL GASTADO:</span>
+            <span class="calc-value total-main">S/. {{ compraRecursoForm.get('costo_total')?.value | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="dialog-actions">
+        <button type="button" class="btn-secondary" (click)="limpiarFormulario()" [disabled]="isSubmitting">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-primary btn-recurso-theme" [disabled]="compraRecursoForm.invalid || isSubmitting">
+          {{ isSubmitting ? 'Registrando Gasto...' : 'Registrar Compra Recurso' }}
+        </button>
+      </footer>
+    </form>
+  }
+</div>
+
+@if (showToast) {
+  <div class="toast-notification">
+    <div class="toast-content">
+      <span class="toast-icon">✓</span>
+      <p class="toast-text">{{ toastMessage }}</p>
+    </div>
+  </div>
+}
