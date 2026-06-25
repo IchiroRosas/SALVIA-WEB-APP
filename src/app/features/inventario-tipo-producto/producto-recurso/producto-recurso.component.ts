@@ -2,13 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Firestore, collection, collectionData, query, where, doc, docData } from '@angular/fire/firestore';
 import { Auth, user } from '@angular/fire/auth';
-import { Observable, combineLatest, of } from 'rxjs';
+import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { ProductoRecursoDb, ProductoRecursoListadoDto } from '../../../shared/models/dto'; 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InventarioService } from '../../services/inventario.service'; 
 import { ActualizarProdRecursoComponent } from './popups-crud-producto-recurso/actualizar-prod-recurso/actualizar-prod-recurso.component'; 
-// 🌟 Importamos el componente de agregar recién creado
 import { AgregarProdRecursoComponent } from './popups-crud-producto-recurso/agregar-prod-recurso/agregar-prod-recurso.component';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
@@ -30,6 +29,12 @@ export class ProductoRecursoComponent implements OnInit {
   rolUsuario: string | null = null;
   empresaId: string | null = null;
   recursosMapeados$!: Observable<ProductoRecursoListadoDto[]>;
+
+  // Variables de control de estado para la Paginación
+  private paginaActualSubject = new BehaviorSubject<number>(1);
+  paginaActual = 1;
+  itemsPorPagina = 5; 
+  totalResultados = 0;
 
   ngOnInit(): void {
     this.rolUsuario = sessionStorage.getItem('rol');
@@ -66,7 +71,6 @@ export class ProductoRecursoComponent implements OnInit {
             return recursos.map((rec: any, index: number): ProductoRecursoListadoDto => {
               const provEncontrado = proveedores.find((p: any) => p.id === rec.id_proveedor);
 
-              // 🌟 Corrección de tipado indexado estricto de TS (Evita error ts(4111))
               return {
                 id: rec.id || '',
                 customId: `REC-${String(index + 1).padStart(3, '0')}`,
@@ -78,15 +82,57 @@ export class ProductoRecursoComponent implements OnInit {
             });
           })
         );
+      }),
+      // 🌟 Unimos la segmentación reactiva por páginas aquí:
+      switchMap(todosLosRecursos => {
+        return this.paginaActualSubject.pipe(
+          map(pagina => {
+            this.totalResultados = todosLosRecursos.length;
+            
+            const maxPaginas = this.totalPaginas;
+            if (pagina > maxPaginas && maxPaginas > 0) {
+              this.paginaActual = maxPaginas;
+            }
+
+            const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+            const fin = inicio + this.itemsPorPagina;
+            return todosLosRecursos.slice(inicio, fin);
+          })
+        );
       })
     );
+  }
+
+  // 🌟 Getters y Auxiliares de Paginación para enlazar al HTML
+  get totalPaginas(): number {
+    return Math.ceil(this.totalResultados / this.itemsPorPagina);
+  }
+
+  get paginas(): number[] {
+    const total = this.totalPaginas;
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  get inicioRango(): number {
+    return this.totalResultados === 0 ? 0 : (this.paginaActual - 1) * this.itemsPorPagina + 1;
+  }
+
+  get finRango(): number {
+    const fin = this.paginaActual * this.itemsPorPagina;
+    return fin > this.totalResultados ? this.totalResultados : fin;
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.paginaActualSubject.next(pagina);
+    }
   }
 
   esAdmin(): boolean {
     return this.rolUsuario === 'administrador';
   }
 
-  // 🌟 Método añadido para abrir el popup de registrar
   agregarRecurso(): void {
     const dialogRef = this.dialog.open(AgregarProdRecursoComponent, {
       width: '50vw',
@@ -96,7 +142,7 @@ export class ProductoRecursoComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Lógica adicional si deseas refrescar algo local manual
+        // Lógica opcional tras cerrar el modal
       }
     });
   }

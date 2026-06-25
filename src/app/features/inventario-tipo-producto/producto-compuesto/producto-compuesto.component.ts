@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { Auth, user } from '@angular/fire/auth';
-import { Observable, of } from 'rxjs';
+import { Observable, of, BehaviorSubject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -32,6 +32,11 @@ export class ProductoCompuestoComponent implements OnInit {
   rolUsuario: string | null = null;
   productosCompuestos$!: Observable<ProductoCompuestoListadoDto[]>;
 
+  private paginaActualSubject = new BehaviorSubject<number>(1);
+  paginaActual = 1;
+  itemsPorPagina = 5; 
+  totalResultados = 0;
+
   ngOnInit(): void {
     this.rolUsuario = sessionStorage.getItem('rol');
 
@@ -58,8 +63,50 @@ export class ProductoCompuestoComponent implements OnInit {
             }));
           })
         );
+      }),
+      switchMap(todosLosProductos => {
+        return this.paginaActualSubject.pipe(
+          map(pagina => {
+            this.totalResultados = todosLosProductos.length;
+            
+            // Si por alguna razón (como borrar un ítem) la página actual excede el nuevo máximo de páginas
+            const maxPaginas = this.totalPaginas;
+            if (pagina > maxPaginas && maxPaginas > 0) {
+              this.paginaActual = maxPaginas;
+            }
+
+            const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+            const fin = inicio + this.itemsPorPagina;
+            return todosLosProductos.slice(inicio, fin);
+          })
+        );
       })
     );
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.totalResultados / this.itemsPorPagina);
+  }
+
+  get paginas(): number[] {
+    const total = this.totalPaginas;
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  get inicioRango(): number {
+    return this.totalResultados === 0 ? 0 : (this.paginaActual - 1) * this.itemsPorPagina + 1;
+  }
+
+  get finRango(): number {
+    const fin = this.paginaActual * this.itemsPorPagina;
+    return fin > this.totalResultados ? this.totalResultados : fin;
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.paginaActualSubject.next(pagina);
+    }
   }
 
   esAdmin(): boolean {

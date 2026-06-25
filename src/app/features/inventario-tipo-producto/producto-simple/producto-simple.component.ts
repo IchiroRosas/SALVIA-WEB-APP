@@ -2,15 +2,15 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Firestore, collection, collectionData, query, where, doc, docData, updateDoc } from '@angular/fire/firestore';
 import { Auth, user } from '@angular/fire/auth';
-import { Observable, combineLatest, of } from 'rxjs';
+import { Observable, combineLatest, of, BehaviorSubject } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { ProductoSimpleDb, ProductoSimpleListadoDto } from '../../../shared/models/dto'; // Ajusta la ruta de importación
+import { ProductoSimpleDb, ProductoSimpleListadoDto } from '../../../shared/models/dto'; 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProdSimpleComponent } from './popups-crud-producto-simple/detalle-prod-simple/detalle-prod-simple.component';
 import { ActualizarProdSimpleComponent } from './popups-crud-producto-simple/actualizar-prod-simple/actualizar-prod-simple.component';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
-import { InventarioService } from "../../services/inventario.service";
+import { InventarioService } from './../../services/inventario.service';
 
 @Component({
   selector: 'app-producto-simple',
@@ -19,28 +19,33 @@ import { InventarioService } from "../../services/inventario.service";
   templateUrl: './producto-simple.component.html',
   styleUrls: ['./producto-simple.component.css']
 })
-
 export class ProductoSimpleComponent implements OnInit {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
   private dialog = inject(MatDialog);
   private toastr = inject(ToastrService);
-  private inventarioService = inject(InventarioService);
+  public inventarioService = inject(InventarioService); // Cambiado a public por seguridad de acceso si fuera necesario
 
   rolUsuario: string | null = null;
   empresaId: string | null = null;
   productosMapeados$!: Observable<ProductoSimpleListadoDto[]>;
 
-  ngOnInit(): void {
+  private paginaActualSubject = new BehaviorSubject<number>(1);
+  paginaActual = 1;
+  itemsPorPagina = 5; 
+  totalResultados = 0;
 
+  ngOnInit(): void {
     this.rolUsuario = sessionStorage.getItem('rol');
 
     this.productosMapeados$ = user(this.auth).pipe(
+      // 1. Obtener datos del usuario logueado
       switchMap(authUser => {
         if (!authUser) return of(null);
         const userDocRef = doc(this.firestore, 'users', authUser.uid);
         return docData(userDocRef);
       }),
+      // 2. Consultar las colecciones de Firestore basadas en la empresa
       switchMap((userData: any) => {
         if (!userData || !userData.empresa_id) {
           return of([]);
@@ -59,26 +64,80 @@ export class ProductoSimpleComponent implements OnInit {
 
         return combineLatest([prodsData$, catsData$, provsData$]).pipe(
           map(([productos, categorias, proveedores]) => {
-            return productos.map((prod: ProductoSimpleDb): ProductoSimpleListadoDto => {
-
-              // Buscar correspondencia de Categoría por UID de documento
+            return productos.map((prod: any, index: number): ProductoSimpleListadoDto => {
               const catEncontrada = categorias.find((c: any) => c.id === prod.id_categoria);
+              const provEncontrado = proveedores.find((p: any) => p.id === prod.id_proveedor);
 
               return {
                 id: prod.id || '',
-                nombre: prod.descripcion_prod,
+                nombre: prod['descripcion_prod'] || '',
+                marca: prod['marca_prod'] || 'Sin Marca',
                 categoria: catEncontrada ? catEncontrada['nombre_categoria'] : 'Sin Categoría',
-                marca: prod.marca_prod || 'Sin Marca',
+                proveedor: provEncontrado ? provEncontrado['nombre_proveedor'] : 'Sin Proveedor',
                 stock: prod.stock_actual || 0,
                 unidadMedida: prod.unidad_medida || 'N/A',
                 precioVenta: prod.precio_venta_unitario || 0,
-                precioCompra: prod.precio_compra_unitario || 0
+                precioCompra: prod.precio_compra_unitario || 0,
               };
             });
           })
         );
+      }),
+      // 3. Aplicar Filtro reactivo multi-campo global y Paginación estructurada
+      switchMap((todosLosProductosMapeados: ProductoSimpleListadoDto[]) => {
+        return combineLatest([
+          this.paginaActualSubject,
+          this.inventarioService.termino$ // Escucha los cambios del buscador alojado en tu servicio
+        ]).pipe(
+          map(([pagina, termino]) => {
+            
+            // A. Filtrar por Nombre, Marca, Categoría o Proveedor
+            const filtrados = todosLosProductosMapeados.filter(p => 
+              p.nombre.toLowerCase().includes(termino) ||
+              p.marca.toLowerCase().includes(termino) ||
+              p.categoria.toLowerCase().includes(termino) ||
+              p.proveedor.toLowerCase().includes(termino)
+            );
+
+            // B. Ajustar metadata de la paginación de forma dinámica
+            this.totalResultados = filtrados.length;
+            const maxPaginas = this.totalPaginas;
+            if (pagina > maxPaginas && maxPaginas > 0) { 
+              this.paginaActual = maxPaginas; 
+            }
+
+            // C. Segmentar el array final
+            const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+            return filtrados.slice(inicio, inicio + this.itemsPorPagina);
+          })
+        );
       })
     );
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.totalResultados / this.itemsPorPagina);
+  }
+
+  get paginas(): number[] {
+    const total = this.totalPaginas;
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  get inicioRango(): number {
+    return this.totalResultados === 0 ? 0 : (this.paginaActual - 1) * this.itemsPorPagina + 1;
+  }
+
+  get finRango(): number {
+    const fin = this.paginaActual * this.itemsPorPagina;
+    return fin > this.totalResultados ? this.totalResultados : fin;
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.paginaActualSubject.next(pagina);
+    }
   }
 
   esAdmin(): boolean {
@@ -89,7 +148,7 @@ export class ProductoSimpleComponent implements OnInit {
     this.dialog.open(DetalleProdSimpleComponent, {
       width: '50vw',
       maxWidth: 'none',
-      disableClose: false, // Permite que se cierre al hacer clic fuera
+      disableClose: false,
       data: { idProducto: id }
     });
   }
@@ -110,10 +169,8 @@ export class ProductoSimpleComponent implements OnInit {
     }
 
     try {
-      // 1. Validar las dependencias desde el Service
       const dependencias = await this.inventarioService.verificarDependenciasProductoSimple(id, this.empresaId);
 
-      // 2. Si se encuentra en alguna colección, se interrumpe y se muestra el listado estructurado
       if (dependencias.compuestos.length > 0 || dependencias.promociones.length > 0) {
         let htmlLista = '<div style="text-align: left; max-height: 250px; overflow-y: auto;">';
         htmlLista += '<p>Este artículo no puede eliminarse porque está asignado a los siguientes elementos:</p>';
@@ -139,7 +196,7 @@ export class ProductoSimpleComponent implements OnInit {
           confirmButtonColor: '#2563eb'
         });
 
-        return; // Rompe el flujo impidiendo la eliminación física/lógica
+        return;
       }
 
     } catch (error) {
@@ -148,7 +205,6 @@ export class ProductoSimpleComponent implements OnInit {
       return;
     }
 
-    // 3. Si el producto está libre de dependencias, prosigue el flujo original
     Swal.fire({
       title: '¿Estás seguro?',
       text: 'Este producto ya no estará disponible para la venta.',
@@ -177,5 +233,4 @@ export class ProductoSimpleComponent implements OnInit {
       }
     });
   }
-
 }

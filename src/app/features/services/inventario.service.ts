@@ -4,6 +4,7 @@ import { Observable, combineLatest, switchMap, of, from } from 'rxjs';
 import { ProductoCompuestoDb, ProductoSimpleDb, ProductoSimpleDoc, PromocionDoc, PromocionTablaDto, PromocionTablaPromDto } from '../../shared/models/dto';
 import { map } from 'rxjs/operators';
 import { getDoc } from 'firebase/firestore';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -271,5 +272,15 @@ export class InventarioService {
     return updateDoc(recursoDocRef, recurso);
   }
 
+  private terminoSubject = new BehaviorSubject<string>('');
+  // Observable al que se suscribirán los 4 componentes hijos
+  termino$ = this.terminoSubject.asObservable();
 
+  actualizarTermino(valor: string): void {
+    this.terminoSubject.next(valor.trim().toLowerCase());
+  }
+
+  limpiar(): void {
+    this.terminoSubject.next('');
+  }
 }
