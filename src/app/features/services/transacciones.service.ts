@@ -8,7 +8,8 @@ import {
   doc,
   getDoc,
   writeBatch,
-  collectionData
+  collectionData,
+  increment
 } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable, from, of } from 'rxjs';
@@ -22,6 +23,10 @@ export class TransaccionesService {
   private auth = inject(Auth);
 
   constructor() { }
+
+  //*************************************************************
+  // COMPRAS
+  //*************************************************************
 
   /**
    * Obtiene el empresa_id del usuario actual autenticado
@@ -145,4 +150,51 @@ export class TransaccionesService {
 
     return batch.commit();
   }
+
+  //*************************************************************
+  // VENTAS / BUSQUEDAS
+  //*************************************************************
+
+  /**
+   * Obtiene los productos compuestos (combos) activos de la empresa
+   */
+  getProductosCompuestos(empresaId: string): Observable<any[]> {
+    const compuestoRef = collection(this.firestore, 'prod_compuesto');
+    const q = query(compuestoRef, where('empresa_id', '==', empresaId), where('activo', '==', true));
+    return collectionData(q, { idField: 'id' });
+  }
+
+  /**
+   * Obtiene las promociones activas de la empresa
+   */
+  getPromociones(empresaId: string): Observable<any[]> {
+    const promoRef = collection(this.firestore, 'promociones');
+    const q = query(promoRef, where('empresa_id', '==', empresaId), where('activo', '==', true));
+    return collectionData(q, { idField: 'id' });
+  }
+
+  /**
+   * Registra una venta completa y actualiza los stocks de múltiples productos simples simultáneamente.
+   */
+  async ejecutarTransaccionVenta(payloadVenta: any, mapaDescuentos: { [key: string]: number }): Promise<void> {
+    const batch = writeBatch(this.firestore);
+
+    // 1. Generar nuevo documento de venta con ID automático
+    const ventaRef = doc(collection(this.firestore, 'ventas'));
+    batch.set(ventaRef, payloadVenta);
+
+    // 2. Procesar las reducciones físicas de stock de los productos simples involucrados
+    for (const productoSimpleId of Object.keys(mapaDescuentos)) {
+      const cantidadADescontar = mapaDescuentos[productoSimpleId];
+      const prodSimpleRef = doc(this.firestore, `productos_simples/${productoSimpleId}`);
+
+      batch.update(prodSimpleRef, {
+        stock_actual: increment(-cantidadADescontar)
+      });
+    }
+
+    // 3. Confirmar lote completo
+    await batch.commit();
+  }
+
 }

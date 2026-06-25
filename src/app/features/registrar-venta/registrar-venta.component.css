@@ -1,0 +1,557 @@
+.wide-sales-container {
+    padding: 24px;
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 1300px;
+    /* Pantalla ancha regularizada */
+    margin: 0 auto;
+    color: #1f2937;
+}
+
+.top-action-bar {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.btn-back-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffffff;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-back-nav:hover {
+    background-color: #f9fafb;
+    color: #111827;
+    border-color: #d1d5db;
+}
+
+.btn-back-nav svg {
+    width: 16px;
+    height: 16px;
+}
+
+.sales-dashboard-header h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+}
+
+.sales-dashboard-header p {
+    font-size: 0.938rem;
+    color: #6b7280;
+    margin: 4px 0 0 0;
+}
+
+/* GRID PRINCIPAL DE PANTALLA DIVIDIDA */
+.sales-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    /* Relación balanceada de paneles */
+    gap: 24px;
+    margin-top: 24px;
+    align-items: start;
+}
+
+.panel-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.panel-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #374151;
+    margin: 0 0 16px 0;
+    border-left: 4px solid #2563eb;
+    padding-left: 8px;
+}
+
+.panel-section-title.space-top {
+    margin-top: 28px;
+}
+
+/* FORMULARIOS E INPUTS */
+.form-group-sale {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.relative-box {
+    position: relative;
+}
+
+.form-group-sale label {
+    font-size: 0.813rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.sale-input-main {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sale-input-main:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.form-row-sale {
+    display: flex;
+    gap: 16px;
+}
+
+.val-half {
+    flex: 1;
+    min-width: 0;
+}
+
+/* AUTOCOMPLETADO DE VENTAS */
+.sales-autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin: 4px 0 0 0;
+    padding: 6px 0;
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.08);
+}
+
+.sales-autocomplete-dropdown li {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f9fafb;
+    transition: background-color 0.15s ease;
+}
+
+.sales-autocomplete-dropdown li:hover {
+    background-color: #f3f4f6;
+}
+
+.dropdown-flex-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.prod-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.badge-type {
+    font-size: 0.688rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.badge-type.simple {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+.badge-type.compuesto {
+    background-color: #faf5ff;
+    color: #6b21a8;
+}
+
+.badge-type.promocion {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+.prod-subdetails {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 3px;
+}
+
+/* CAJA DE ARTÍCULO CONFIGURADO */
+.selected-item-box-info {
+    margin-top: 16px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.info-row {
+    margin-bottom: 10px;
+}
+
+.info-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.info-lbl {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.info-val {
+    font-size: 0.938rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.info-val-highlight {
+    font-size: 1.063rem;
+    font-weight: 800;
+    color: #2563eb;
+}
+
+.info-val-stock {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.adder-action-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
+}
+
+.btn-add-to-cart {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-add-to-cart:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-add-to-cart:disabled {
+    background-color: #cbd5e1;
+    cursor: not-allowed;
+}
+
+.empty-selection-placeholder {
+    margin-top: 16px;
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+    padding: 32px 16px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+/* VIEWPORT VIEW DEL CARRITO (SCROLL INTEGRADO CONTRA DESBORDES) */
+.scrollable-cart-viewport {
+    min-height: 250px;
+    max-height: 380px;
+    /* Tamaño máximo controlado */
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #ffffff;
+    margin-bottom: 16px;
+}
+
+.cart-table-element {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.cart-table-element th {
+    background-color: #f9fafb;
+    padding: 12px;
+    font-weight: 600;
+    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.cart-row-item td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.cart-subtext-detail {
+    color: #9ca3af;
+    display: block;
+    font-size: 0.75rem;
+}
+
+.table-badge {
+    font-size: 0.688rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.table-badge.simple {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+.table-badge.compuesto {
+    background-color: #faf5ff;
+    color: #6b21a8;
+}
+
+.table-badge.promocion {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+.btn-delete-item {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+}
+
+.btn-delete-item:hover {
+    background-color: #fee2e2;
+}
+
+.btn-delete-item svg {
+    width: 16px;
+    height: 16px;
+}
+
+.empty-cart-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 16px;
+    color: #9ca3af;
+}
+
+.empty-cart-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+    stroke-width: 1.25;
+}
+
+/* CAJA DE PANEL TOTALIZADOR */
+.billing-summary-box {
+    background-color: #1e293b;
+    border-radius: 8px;
+    padding: 16px;
+    color: #ffffff;
+    margin-bottom: 16px;
+}
+
+.billing-flex-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.billing-label {
+    font-size: 0.813rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #cbd5e1;
+}
+
+.billing-total-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #10b981;
+    /* Verde brillante metálico para destacar el cobro */
+}
+
+/* BOTONERÍA DE PIE DE PANEL */
+.sales-actions-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.btn-clear-sales {
+    background-color: #ffffff;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-clear-sales:hover:not(:disabled) {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+.btn-clear-sales:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-submit-sales {
+    flex: 1;
+    background-color: #10b981;
+    color: #ffffff;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.15);
+}
+
+.btn-submit-sales:hover:not(:disabled) {
+    background-color: #059669;
+}
+
+.btn-submit-sales:disabled {
+    background-color: #a7f3d0;
+    color: #065f46;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* TOAST ANIMADO NOTIFICACIÓN */
+.toast-notification-sale {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background-color: #10b981;
+    color: #ffffff;
+    padding: 14px 24px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+}
+
+.toast-content-sale {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toast-icon-check {
+    background-color: rgba(255, 255, 255, 0.25);
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.toast-text-sale {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* ANIMACIONES */
+.animation-fade-in {
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(60px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
