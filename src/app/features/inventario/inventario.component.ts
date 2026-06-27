@@ -37,6 +37,13 @@ export class InventarioComponent implements OnInit { // 🌟 Buena práctica: ag
     this.inventarioService.actualizarTermino(input.value);
   }
 
+  limpiarBusqueda(input: HTMLInputElement): void {
+  input.value = ''; // Borra el texto de la caja visualmente
+  
+  // Le avisa al servicio que el buscador está vacío para que todo vuelva a aparecer
+  this.inventarioService.actualizarTermino(''); 
+}
+
   // 🌟 Inyectamos el servicio Router para la navegación por código
   private router = inject(Router);
   private dialog = inject(MatDialog);

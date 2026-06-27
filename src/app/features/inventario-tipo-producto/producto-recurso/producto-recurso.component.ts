@@ -83,27 +83,40 @@ export class ProductoRecursoComponent implements OnInit {
           })
         );
       }),
-      // 🌟 Unimos la segmentación reactiva por páginas aquí:
-      switchMap(todosLosRecursos => {
-        return this.paginaActualSubject.pipe(
-          map(pagina => {
-            this.totalResultados = todosLosRecursos.length;
+      // 🌟 Unimos la búsqueda global y la segmentación reactiva por páginas aquí:
+      switchMap((todosLosRecursos: ProductoRecursoListadoDto[]) => {
+        return combineLatest([
+          this.paginaActualSubject,
+          this.inventarioService.termino$
+        ]).pipe(
+          map(([pagina, termino]) => {
+            
+            // 1. Filtrado inteligente por Nombre del Recurso O Nombre del Proveedor
+            const filtrados = todosLosRecursos.filter(r => {
+              const cumpleNombre = r.nombre ? r.nombre.toLowerCase().includes(termino) : false;
+              const cumpleProveedor = r.proveedor ? r.proveedor.toLowerCase().includes(termino) : false;
+              
+              return cumpleNombre || cumpleProveedor;
+            });
+
+            // 2. Recalcular contadores con base en el nuevo set filtrado
+            this.totalResultados = filtrados.length;
             
             const maxPaginas = this.totalPaginas;
             if (pagina > maxPaginas && maxPaginas > 0) {
               this.paginaActual = maxPaginas;
             }
 
+            // 3. Segmentar el trozo de la página actual
             const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-            const fin = inicio + this.itemsPorPagina;
-            return todosLosRecursos.slice(inicio, fin);
+            return filtrados.slice(inicio, inicio + this.itemsPorPagina);
           })
         );
       })
     );
   }
 
-  // 🌟 Getters y Auxiliares de Paginación para enlazar al HTML
+  // Getters y Auxiliares de Paginación para enlazar al HTML
   get totalPaginas(): number {
     return Math.ceil(this.totalResultados / this.itemsPorPagina);
   }

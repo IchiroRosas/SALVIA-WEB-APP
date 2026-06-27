@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, BehaviorSubject, switchMap, map } from 'rxjs';
+import { Observable, BehaviorSubject, switchMap, map, combineLatest } from 'rxjs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InventarioService } from '../../services/inventario.service';
-import { PromocionTablaDto, PromocionTablaPromDto } from '../../../shared/models/dto';
+import { PromocionTablaPromDto } from '../../../shared/models/dto';
 import { DetallePromocionComponent } from '../promociones/popups-crud-promociones/detalle-promocion/detalle-promocion.component';
 import { ActualizarPromocionComponent } from './popups-crud-promociones/actualizar-promocion/actualizar-promocion.component';
 import Swal from 'sweetalert2';
@@ -32,10 +32,22 @@ export class PromocionesComponent implements OnInit {
 
   ngOnInit(): void {
     this.promocionesMapeadas$ = this.inventarioService.obtenerPromocionesMapeadas(this.idEmpresaActual).pipe(
-      switchMap(todosLosProductos => {
-        return this.paginaActualSubject.pipe(
-          map(pagina => {
-            this.totalResultados = todosLosProductos.length;
+      switchMap((todasLasPromociones: PromocionTablaPromDto[]) => {
+        return combineLatest([
+          this.paginaActualSubject,
+          this.inventarioService.termino$
+        ]).pipe(
+          map(([pagina, termino]) => {
+            
+            // 🌟 NUEVO: Filtro de doble criterio (Nombre de Promo O Nombre de Producto)
+            const filtradas = todasLasPromociones.filter(p => {
+              const cumplePromo = p.descripcionPromo ? p.descripcionPromo.toLowerCase().includes(termino) : false;
+              const cumpleProducto = p.productoNombre ? p.productoNombre.toLowerCase().includes(termino) : false;
+              
+              return cumplePromo || cumpleProducto; // Se muestra si coincide con cualquiera de los dos
+            });
+
+            this.totalResultados = filtradas.length;
             
             const maxPaginas = this.totalPaginas;
             if (pagina > maxPaginas && maxPaginas > 0) {
@@ -43,8 +55,7 @@ export class PromocionesComponent implements OnInit {
             }
 
             const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-            const fin = inicio + this.itemsPorPagina;
-            return todosLosProductos.slice(inicio, fin);
+            return filtradas.slice(inicio, inicio + this.itemsPorPagina);
           })
         );
       })

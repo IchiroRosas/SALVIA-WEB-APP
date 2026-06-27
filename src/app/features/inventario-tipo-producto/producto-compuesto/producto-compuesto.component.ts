@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { Auth, user } from '@angular/fire/auth';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of, BehaviorSubject, combineLatest } from 'rxjs'; // 🌟 Agregado combineLatest aquí
 import { map, switchMap } from 'rxjs/operators';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -21,13 +21,12 @@ import { ActualizarProdCompuestoComponent } from './popups-crud-producto-compues
   templateUrl: './producto-compuesto.component.html',
   styleUrls: ['./producto-compuesto.component.css']
 })
-
 export class ProductoCompuestoComponent implements OnInit {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
   private dialog = inject(MatDialog);
   private toastr = inject(ToastrService);
-  private inventarioService = inject(InventarioService); // 🌟 Inyectamos el nuevo servicio
+  private inventarioService = inject(InventarioService); 
 
   rolUsuario: string | null = null;
   productosCompuestos$!: Observable<ProductoCompuestoListadoDto[]>;
@@ -41,11 +40,13 @@ export class ProductoCompuestoComponent implements OnInit {
     this.rolUsuario = sessionStorage.getItem('rol');
 
     this.productosCompuestos$ = user(this.auth).pipe(
+      // 1. Obtener información del usuario e identificar su empresa
       switchMap(authUser => {
         if (!authUser) return of(null);
         const userDocRef = doc(this.firestore, 'users', authUser.uid);
         return docData(userDocRef);
       }),
+      // 2. Traer los productos compuestos desde el servicio y mapearlos al DTO
       switchMap((userData: any) => {
         if (!userData || !userData.empresa_id) {
           return of([]);
@@ -53,7 +54,6 @@ export class ProductoCompuestoComponent implements OnInit {
 
         const miEmpresaId = userData.empresa_id;
 
-        // Consumimos la lista desde el servicio e internalizamos el mapeo al DTO de la tabla
         return this.inventarioService.obtenerProductosCompuestos(miEmpresaId).pipe(
           map(productos => {
             return productos.map((prod: any): ProductoCompuestoListadoDto => ({
@@ -64,20 +64,30 @@ export class ProductoCompuestoComponent implements OnInit {
           })
         );
       }),
-      switchMap(todosLosProductos => {
-        return this.paginaActualSubject.pipe(
-          map(pagina => {
-            this.totalResultados = todosLosProductos.length;
+      // 3. 🌟 Filtrado REACTIVO (Solo por Nombre) y Paginación combinada
+      switchMap((todosLosProductos: ProductoCompuestoListadoDto[]) => {
+        return combineLatest([
+          this.paginaActualSubject,
+          this.inventarioService.termino$ // Escucha los cambios del buscador global
+        ]).pipe(
+          map(([pagina, termino]) => {
             
-            // Si por alguna razón (como borrar un ítem) la página actual excede el nuevo máximo de páginas
+            // A. Aplicar filtro únicamente al campo 'nombre'
+            const filtrados = todosLosProductos.filter(p => 
+              p.nombre.toLowerCase().includes(termino)
+            );
+
+            // B. Recalcular dinámicamente el total de resultados para los botones de la vista
+            this.totalResultados = filtrados.length;
+            
             const maxPaginas = this.totalPaginas;
             if (pagina > maxPaginas && maxPaginas > 0) {
               this.paginaActual = maxPaginas;
             }
 
+            // C. Segmentar la porción de elementos correspondiente a la página activa
             const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-            const fin = inicio + this.itemsPorPagina;
-            return todosLosProductos.slice(inicio, fin);
+            return filtrados.slice(inicio, inicio + this.itemsPorPagina);
           })
         );
       })
@@ -116,18 +126,18 @@ export class ProductoCompuestoComponent implements OnInit {
   detalleProducto(id: string): void {
     this.dialog.open(DetalleProdCompuestoComponent, {
       width: '60vw',
-      maxWidth: 'none', // Mantiene la consistencia del ancho fluido que arreglamos
+      maxWidth: 'none', 
       disableClose: true,
-      data: { idCombo: id } // Pasamos el ID del combo al modal
+      data: { idCombo: id } 
     });
   }
 
   editarProducto(id: string): void {
     this.dialog.open(ActualizarProdCompuestoComponent, {
       width: '60vw',
-      maxWidth: 'none', // Mantiene la consistencia del ancho fluido que arreglamos
+      maxWidth: 'none', 
       disableClose: true,
-      data: { idCombo: id } // Pasamos el ID del combo al modal
+      data: { idCombo: id } 
     });
   }
 
@@ -145,7 +155,6 @@ export class ProductoCompuestoComponent implements OnInit {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Delegamos la eliminación lógica al servicio
           await this.inventarioService.eliminarProductoCompuesto(id);
 
           this.toastr.success('El combo fue eliminado con éxito.', '¡Eliminado!', {
@@ -160,5 +169,4 @@ export class ProductoCompuestoComponent implements OnInit {
       }
     });
   }
-
 }
