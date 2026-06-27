@@ -517,3 +517,34 @@
   background-color: var(--border-color);
   margin: 5px 0;
 }
+
+/* ======================================================================= */
+/* ESTILOS PARA MÓDULO DESACTIVADO (NO ADMINISTRADOR)                      */
+/* ======================================================================= */
+.module-card.module-card-disabled {
+  background-color: #f1f5f9 !important; /* Gris claro de fondo */
+  border-color: #cbd5e1 !important;     /* Borde más tenue */
+  color: #94a3b8 !important;            /* Texto gris */
+  cursor: not-allowed !important;       /* Cursor de prohibido/desactivado */
+  pointer-events: none;                 /* Bloquea completamente interacciones nativas y clicks */
+  transform: none !important;            /* Elimina el efecto de elevarse */
+  box-shadow: none !important;          /* Elimina sombras al pasar el mouse */
+}
+
+/* Apagar colores vivos de los elementos internos */
+.module-card-disabled .module-icon-box {
+  background-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+}
+
+.module-card-disabled .module-name {
+  color: #94a3b8 !important;
+}
+
+.module-card-disabled .module-desc {
+  color: #cbd5e1 !important;
+}
+
+.module-card-disabled .module-footer {
+  color: #94a3b8 !important;
+}
