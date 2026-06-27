@@ -51,3 +51,25 @@
     }
   </tbody>
 </table>
+
+<div class="pagination-container">
+  <div class="pagination-info">
+    Mostrando {{ inicioRango }} al {{ finRango }} de {{ totalResultados }} resultados
+  </div>
+  
+  <div class="pagination-controls">
+    <button class="btn-page" [disabled]="paginaActual === 1" (click)="cambiarPagina(paginaActual - 1)">
+      &lt;
+    </button>
+
+    @for (pagina of paginas; track pagina) {
+      <button class="btn-page" [class.active]="pagina === paginaActual" (click)="cambiarPagina(pagina)">
+        {{ pagina }}
+      </button>
+    }
+
+    <button class="btn-page" [disabled]="paginaActual === totalPaginas || totalPaginas === 0" (click)="cambiarPagina(paginaActual + 1)">
+      &gt;
+    </button>
+  </div>
+</div>

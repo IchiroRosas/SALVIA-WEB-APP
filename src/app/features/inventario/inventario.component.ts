@@ -12,6 +12,7 @@ import { AgregarProdSimpleComponent } from '../inventario-tipo-producto/producto
 import { AgregarProdCompuestoComponent } from '../inventario-tipo-producto/producto-compuesto/popups-crud-producto-compuesto/agregar-prod-compuesto/agregar-prod-compuesto.component';
 import { AgregarPromocionComponent } from '../inventario-tipo-producto/promociones/popups-crud-promociones/agregar-promocion/agregar-promocion.component';
 import { AgregarProdRecursoComponent } from '../inventario-tipo-producto/producto-recurso/popups-crud-producto-recurso/agregar-prod-recurso/agregar-prod-recurso.component';
+import { InventarioService } from './../services/inventario.service';
 
 @Component({
   selector: 'app-inventario',
@@ -28,6 +29,20 @@ import { AgregarProdRecursoComponent } from '../inventario-tipo-producto/product
   styleUrls: ['./inventario.component.css']
 })
 export class InventarioComponent implements OnInit { // 🌟 Buena práctica: agregar 'implements OnInit'
+
+  private inventarioService = inject(InventarioService);
+  
+  onBuscar(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.inventarioService.actualizarTermino(input.value);
+  }
+
+  limpiarBusqueda(input: HTMLInputElement): void {
+  input.value = ''; // Borra el texto de la caja visualmente
+  
+  // Le avisa al servicio que el buscador está vacío para que todo vuelva a aparecer
+  this.inventarioService.actualizarTermino(''); 
+}
 
   // 🌟 Inyectamos el servicio Router para la navegación por código
   private router = inject(Router);

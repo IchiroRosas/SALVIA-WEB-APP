@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, switchMap, map, combineLatest } from 'rxjs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InventarioService } from '../../services/inventario.service';
-import { PromocionTablaDto, PromocionTablaPromDto } from '../../../shared/models/dto';
+import { PromocionTablaPromDto } from '../../../shared/models/dto';
 import { DetallePromocionComponent } from '../promociones/popups-crud-promociones/detalle-promocion/detalle-promocion.component';
 import { ActualizarPromocionComponent } from './popups-crud-promociones/actualizar-promocion/actualizar-promocion.component';
 import Swal from 'sweetalert2';
@@ -16,22 +16,79 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './promociones.component.html',
   styleUrl: './promociones.component.css'
 })
-
 export class PromocionesComponent implements OnInit {
   private inventarioService = inject(InventarioService);
   private dialog = inject(MatDialog);
   private toastr = inject(ToastrService);
 
   promocionesMapeadas$!: Observable<PromocionTablaPromDto[]>;
-  esAdmin = signal<boolean>(true); // Tu lógica de roles habitual
-  private idEmpresaActual = 'Tj3T6JWn5rCLXxkohscz'; // ID dinámico de la sesión activa
+  esAdmin = signal<boolean>(true); 
+  private idEmpresaActual = 'Tj3T6JWn5rCLXxkohscz'; 
+
+  private paginaActualSubject = new BehaviorSubject<number>(1);
+  paginaActual = 1;
+  itemsPorPagina = 5; 
+  totalResultados = 0;
 
   ngOnInit(): void {
-    this.promocionesMapeadas$ = this.inventarioService.obtenerPromocionesMapeadas(this.idEmpresaActual);
+    this.promocionesMapeadas$ = this.inventarioService.obtenerPromocionesMapeadas(this.idEmpresaActual).pipe(
+      switchMap((todasLasPromociones: PromocionTablaPromDto[]) => {
+        return combineLatest([
+          this.paginaActualSubject,
+          this.inventarioService.termino$
+        ]).pipe(
+          map(([pagina, termino]) => {
+            
+            // 🌟 NUEVO: Filtro de doble criterio (Nombre de Promo O Nombre de Producto)
+            const filtradas = todasLasPromociones.filter(p => {
+              const cumplePromo = p.descripcionPromo ? p.descripcionPromo.toLowerCase().includes(termino) : false;
+              const cumpleProducto = p.productoNombre ? p.productoNombre.toLowerCase().includes(termino) : false;
+              
+              return cumplePromo || cumpleProducto; // Se muestra si coincide con cualquiera de los dos
+            });
+
+            this.totalResultados = filtradas.length;
+            
+            const maxPaginas = this.totalPaginas;
+            if (pagina > maxPaginas && maxPaginas > 0) {
+              this.paginaActual = maxPaginas;
+            }
+
+            const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+            return filtradas.slice(inicio, inicio + this.itemsPorPagina);
+          })
+        );
+      })
+    );
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.totalResultados / this.itemsPorPagina);
+  }
+
+  get paginas(): number[] {
+    const total = this.totalPaginas;
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  get inicioRango(): number {
+    return this.totalResultados === 0 ? 0 : (this.paginaActual - 1) * this.itemsPorPagina + 1;
+  }
+
+  get finRango(): number {
+    const fin = this.paginaActual * this.itemsPorPagina;
+    return fin > this.totalResultados ? this.totalResultados : fin;
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.paginaActualSubject.next(pagina);
+    }
   }
 
   verDetallePromo(id: string | undefined): void {
-    if (!id) return; // Si no hay ID, frena la ejecución de forma segura
+    if (!id) return;
 
     this.dialog.open(DetallePromocionComponent, {
       data: { id },
@@ -41,7 +98,7 @@ export class PromocionesComponent implements OnInit {
   }
 
   editarPromo(id: string): void {
-    if (!id) return; // Si no hay ID, frena la ejecución de forma segura
+    if (!id) return;
 
     this.dialog.open(ActualizarPromocionComponent, {
       data: { id },
@@ -73,5 +130,4 @@ export class PromocionesComponent implements OnInit {
       }
     });
   }
-
 }

@@ -85,6 +85,7 @@ export interface ProductoSimpleListadoDto {
   id: string;
   nombre: string;
   categoria: string;
+  proveedor: string;
   marca: string;
   stock: number;
   unidadMedida: string;

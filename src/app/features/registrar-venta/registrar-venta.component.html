@@ -1,1 +1,189 @@
-<p>registrar-venta works!</p>
+<div class="wide-sales-container">
+
+    <div class="top-action-bar">
+        <button type="button" class="btn-back-nav" (click)="volver()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            Volver
+        </button>
+    </div>
+
+    <header class="sales-dashboard-header">
+        <h2>Registrar Nueva Venta</h2>
+        <p>Busca e ingresa artículos simples, compuestos o promociones activas. El sistema validará stocks en tiempo
+            real.</p>
+    </header>
+
+    <div class="sales-layout-grid">
+
+        <div class="panel-card operations-panel">
+            <h3 class="panel-section-title">1. Selección de Productos</h3>
+
+            <div class="form-group-sale relative-box">
+                <label>Buscar Producto, Combo o Promoción *</label>
+                <input type="text" [(ngModel)]="buscarProductoStr"
+                    placeholder="Escribe el nombre del artículo o coincidencia de tipo..." (focus)="showDropdown = true"
+                    (input)="filtrarProductos(buscarProductoStr)" (blur)="evaluarLimpiezaCelda()" autocomplete="off"
+                    class="sale-input-main" />
+
+                @if (showDropdown && productosFiltrados.length > 0) {
+                <ul class="sales-autocomplete-dropdown">
+                    @for (prod of productosFiltrados; track prod.id + prod.tipo) {
+                    <li (mousedown)="seleccionarProducto(prod)">
+                        <div class="dropdown-flex-row">
+                            <span class="prod-title">{{ prod.nombre }}</span>
+                            <span class="badge-type" [ngClass]="prod.tipo">{{ prod.tipo | uppercase }}</span>
+                        </div>
+                        <div class="prod-subdetails">{{ prod.detalles }}</div>
+                    </li>
+                    }
+                </ul>
+                }
+            </div>
+
+            @if (itemSeleccionado) {
+            <div class="selected-item-box-info animation-fade-in">
+                <div class="info-row">
+                    <span class="info-lbl">Ítem Fijado:</span>
+                    <strong class="info-val">{{ itemSeleccionado.nombre }}</strong>
+                </div>
+                <div class="info-row-grid">
+                    <div>
+                        <span class="info-lbl">Precio Unitario:</span>
+                        <span class="info-val-highlight">S/. {{ itemSeleccionado.price || itemSeleccionado.precio |
+                            number:'1.2-2' }}</span>
+                    </div>
+                    <div>
+                        <span class="info-lbl">Disponibilidad Almacén:</span>
+                        <span class="info-val-stock">{{ itemSeleccionado.stock_render }} {{ itemSeleccionado.tipo ===
+                            'compuesto' ? 'Combo' : itemSeleccionado.unidad_medida }}</span>
+                    </div>
+                </div>
+
+                <div class="adder-action-row">
+                    <div class="form-group-sale flex-1">
+                        <label for="qtyInput">Cantidad a Vender</label>
+                        <input id="qtyInput" type="number" [min]="itemSeleccionado?.tipo === 'simple' ? 0.001 : 1"
+                            [step]="itemSeleccionado?.tipo === 'simple' ? 0.001 : 1" [(ngModel)]="cantidadVenta"
+                            class="sale-input-main text-center" />
+                    </div>
+                    <button type="button" class="btn-add-to-cart" (click)="agregarAlCarrito()"
+                        [disabled]="itemSeleccionado?.tipo === 'simple' ? (cantidadVenta < 0.001) : (cantidadVenta < 1 || cantidadVenta % 1 !== 0)">
+                        Añadir al Carrito
+                    </button>
+                </div>
+            </div>
+            } @else {
+            <div class="empty-selection-placeholder">
+                <p>Selecciona un producto de la barra de búsqueda para configurar cantidades.</p>
+            </div>
+            }
+
+            <h3 class="panel-section-title space-top">2. Información del Cliente (Opcional)</h3>
+            <form [formGroup]="ventaForm" class="client-subform">
+                <div class="form-row-sale">
+                    <div class="form-group-sale val-half">
+                        <label>Nombre del Cliente</label>
+                        <input type="text" formControlName="nombre_cliente" placeholder="Ej: Juan Pérez"
+                            class="sale-input-main" />
+                    </div>
+                    <div class="form-group-sale val-half">
+                        <label>Número Telefónico</label>
+                        <input type="text" formControlName="telefono_cliente" placeholder="Ej: 987654321"
+                            class="sale-input-main" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel-card cart-summary-panel">
+            <h3 class="panel-section-title">Detalle del Carrito de Ventas</h3>
+
+            <div class="scrollable-cart-viewport">
+                @if (carrito.length > 0) {
+                <table class="cart-table-element">
+                    <thead>
+                        <tr>
+                            <th>Descripción Artículo</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">U.M.</th>
+                            <th class="text-center">Cant.</th>
+                            <th class="text-right">Precio</th>
+                            <th class="text-right">Subtotal</th>
+                            <th class="text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of carrito; track item.id; let idx = $index) {
+                        <tr class="cart-row-item">
+                            <td>
+                                <div class="cart-item-name">{{ item.nombre }}</div>
+                            </td>
+                            <td class="text-center">
+                                <span class="table-badge" [ngClass]="item.tipo">{{ item.tipo }}</span>
+                            </td>
+
+                            <td class="text-center font-medium" style="color: #64748b;">
+                                {{ item.unidad_medida }}
+                            </td>
+
+                            <td class="text-center font-bold">{{ item.cantidad }}</td>
+                            <td class="text-right">S/. {{ item.precioVenta | number:'1.2-2' }}</td>
+                            <td class="text-right font-bold text-slate">S/. {{ item.subtotal | number:'1.2-2' }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn-delete-item" (click)="eliminarDelCarrito(idx)"
+                                    title="Remover item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table> } @else {
+                <div class="empty-cart-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="empty-cart-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                    </svg>
+                    <p>No hay artículos asignados al pedido actual.</p>
+                </div>
+                }
+            </div>
+
+            <div class="billing-summary-box">
+                <div class="billing-flex-row">
+                    <span class="billing-label">IMPORTE TOTAL A COBRAR:</span>
+                    <span class="billing-total-value">S/. {{ precioVentaTotal | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <div class="sales-actions-footer">
+                <button type="button" class="btn-clear-sales" (click)="limpiarModuloCompleto()"
+                    [disabled]="carrito.length === 0 || isSubmitting">
+                    Vaciar Todo
+                </button>
+                <button type="button" class="btn-submit-sales" (click)="procesarRegistroVenta()"
+                    [disabled]="carrito.length === 0 || isSubmitting">
+                    {{ isSubmitting ? 'Procesando Venta...' : 'Registrar Venta' }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@if (showToast) {
+<div class="toast-notification-sale animate-slide-up">
+    <div class="toast-content-sale">
+        <span class="toast-icon-check">✓</span>
+        <p class="toast-text-sale">{{ toastMessage }}</p>
+    </div>
+</div>
+}
