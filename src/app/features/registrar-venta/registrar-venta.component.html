@@ -57,8 +57,8 @@
                     </div>
                     <div>
                         <span class="info-lbl">Disponibilidad Almacén:</span>
-                        <span class="info-val-stock">{{ itemSeleccionado.stock_render }} {{
-                            itemSeleccionado.unidad_medida }}</span>
+                        <span class="info-val-stock">{{ itemSeleccionado.stock_render }} {{ itemSeleccionado.tipo ===
+                            'compuesto' ? 'Combo' : itemSeleccionado.unidad_medida }}</span>
                     </div>
                 </div>
 
@@ -171,7 +171,7 @@
                 </button>
                 <button type="button" class="btn-submit-sales" (click)="procesarRegistroVenta()"
                     [disabled]="carrito.length === 0 || isSubmitting">
-                    {{ isSubmitting ? 'Procesando Venta...' : 'Completar y Registrar Venta' }}
+                    {{ isSubmitting ? 'Procesando Venta...' : 'Registrar Venta' }}
                 </button>
             </div>
 
