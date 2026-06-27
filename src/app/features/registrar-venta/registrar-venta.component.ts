@@ -327,7 +327,7 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
         subtotal: this.itemSeleccionado.precio * this.cantidadVenta,
         unidad_medida: this.itemSeleccionado.tipo === 'simple' ? (this.itemSeleccionado.unidad_medida || 'Unidad') : '---',
         descripcion_prod_simple: this.itemSeleccionado.tipo === 'simple' ? this.itemSeleccionado.nombre : null,
-        descripcion_promo: this.itemSeleccionado.tipo === 'promocion' ? this.itemSeleccionado.detalles : null,
+        descripcion_promo: this.itemSeleccionado.tipo === 'promocion' ? this.itemSeleccionado.nombre : null,
         descripcion_prod_comp: this.itemSeleccionado.tipo === 'compuesto' ? this.itemSeleccionado.nombre : null,
         componentesSimples: this.itemSeleccionado.componentes
       });
@@ -394,7 +394,7 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
         descripcion_prod_simple: item.descripcion_prod_simple,
         descripcion_promo: item.descripcion_promo,
         descripcion_prod_comp: item.descripcion_prod_comp,
-        producto_id: item.itemOriginalId // DIME SI HICE BIEN, QUIERO LOGRAR QUE AL REGISTRAR LA VENTA, CADA PRODUCTO YA SEA SIMPLE, COMPUESTO O PROMOCIÓN, TENGA SU RESPECTIVO ID DE FIRESTORE PARA PODER GUARDARLO CORRECTAMENTE PARA AUDITORIA
+        producto_id: item.itemOriginalId
       }));
 
       const ventaFinalPayload = {
