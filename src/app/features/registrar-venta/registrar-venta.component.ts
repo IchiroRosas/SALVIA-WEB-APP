@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransaccionesService } from '../services/transacciones.service';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import Swal from 'sweetalert2';
 
 interface CartItem {
@@ -14,6 +14,7 @@ interface CartItem {
   precioVenta: number;
   cantidad: number;
   subtotal: number;
+  unidad_medida: string;
   // Desglose descriptivo para el payload de la BD
   descripcion_prod_simple: string | null;
   descripcion_promo: string | null;
@@ -86,58 +87,75 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
   cargarCatalogosVenta(): void {
     if (!this.empresaId) return;
 
-    // Suscripción triple optimizada en paralelo
-    this.sub.add(this.transaccionesService.getProductosSimples(this.empresaId).subscribe(simples => {
-      this.productosSimples = simples;
-      this.consolidarProductosBusqueda();
-    }));
+    // combineLatest actúa como un semáforo inteligente:
+    // Espera a que las 3 colecciones respondan antes de activar el subscribe
+    this.sub.add(
+      combineLatest([
+        this.transaccionesService.getProductosSimples(this.empresaId),
+        this.transaccionesService.getProductosCompuestos(this.empresaId),
+        this.transaccionesService.getPromociones(this.empresaId)
+      ]).subscribe({
+        next: ([simples, compuestos, promos]) => {
+          // Asignamos toda la data junta asegurando que ninguna esté vacía
+          this.productosSimples = simples;
+          this.productosCompuestos = compuestos;
+          this.promociones = promos;
 
-    this.sub.add(this.transaccionesService.getProductosCompuestos(this.empresaId).subscribe(compuestos => {
-      this.productosCompuestos = compuestos;
-      console.log('Productos Compuestos cargados:', compuestos);
-      this.consolidarProductosBusqueda();
-    }));
-
-    this.sub.add(this.transaccionesService.getPromociones(this.empresaId).subscribe(promos => {
-      this.promociones = promos;
-      this.consolidarProductosBusqueda();
-    }));
+          // Ahora que todo está en memoria, consolidamos con total seguridad
+          this.consolidarProductosBusqueda();
+        },
+        error: (err) => {
+          console.error('Error crítico al descargar catálogos de Firebase:', err);
+        }
+      })
+    );
   }
 
   consolidarProductosBusqueda(): void {
     const unificados: any[] = [];
 
+    // 0. Crear un mapa con todas las unidades de productos simples que ya están retenidas en el carrito
+    const mapeoDemandaCarrito: { [key: string]: number } = {};
+    this.carrito.forEach(cartItem => {
+      cartItem.componentesSimples.forEach(comp => {
+        const totalUnidades = comp.cantidadRequerida * cartItem.cantidad;
+        mapeoDemandaCarrito[comp.id_producto_simple] = (mapeoDemandaCarrito[comp.id_producto_simple] || 0) + totalUnidades;
+      });
+    });
+
     // 1. Mapear Productos Simples
     this.productosSimples.forEach(p => {
-      const nombreCompleto = p.descripcion_prod;
+      const unidadesEnCarrito = mapeoDemandaCarrito[p.id] || 0;
+      const stockDisponible = Math.max(0, p.stock_actual - unidadesEnCarrito);
       const unidadMedidaLabel = p.unidad_medida || 'Unidad';
 
       unificados.push({
         id: p.id,
-        nombre: nombreCompleto,
+        nombre: p.descripcion_prod,
         tipo: 'simple',
         precio: p.precio_venta_unitario || 0,
-        stock_render: p.stock_actual,
+        stock_render: stockDisponible,
         unidad_medida: unidadMedidaLabel,
-        detalles: `Precio Reg: S/. ${p.precio_venta_unitario} • Stock: ${p.stock_actual} ${unidadMedidaLabel} • Marca: ${p.marca_prod || 'Sin marca'}`,
+        detalles: `Precio Reg: S/. ${p.precio_venta_unitario} • Stock: ${stockDisponible} ${unidadMedidaLabel} • Marca: ${p.marca_prod || 'Sin marca'}`,
         componentes: [{ id_producto_simple: p.id, cantidadRequerida: 1 }]
       });
     });
 
-    // 2. Mapear Productos Compuestos (Modificado para alternar marcas y U.M en los componentes internos)
+    // 2. Mapear Productos Compuestos
     this.productosCompuestos.forEach(c => {
+      // Calculamos el stock disponible en base al inventario neto (restando el carrito)
+      const stockCompuesto = this.calcularStockCompuestoMaximo(c.productos_componentes, mapeoDemandaCarrito);
+      const unidadMedidaLabel = c.unidad_medida || 'Unidad';
+
       const infoComponentes = c.productos_componentes?.map((pa: any) => {
         const prodOriginal = this.productosSimples.find(ps => ps.id === pa.producto_simple_id);
         const nombreInsumo = prodOriginal ? prodOriginal.descripcion_prod : 'Insumo';
-        // Extraemos dinámicamente la marca y unidad de medida del producto simple original
         const umInsumo = prodOriginal ? (prodOriginal.unidad_medida || 'Unidad') : 'Unidad';
         const marcaInsumo = prodOriginal ? (prodOriginal.marca_prod || 'Sin marca') : 'Sin marca';
-        
-        return `${pa.cantidad_necesaria} ${umInsumo} de ${nombreInsumo} (${marcaInsumo})`;
-      }).join(', ') || 'Sin desglose';
 
-      const stockCompuesto = this.calcularStockCompuestoMaximo(c.productos_componentes);
-      const unidadMedidaLabel = c.unidad_medida || 'Unidad';
+        const cantReq = pa.cantidad_necesaria || pa.cantidad || 0;
+        return `${cantReq} ${umInsumo} de ${nombreInsumo} (${marcaInsumo})`;
+      }).join(', ') || 'Sin desglose';
 
       unificados.push({
         id: c.id,
@@ -146,30 +164,36 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
         precio: c.precio_venta_combo || 0,
         stock_render: stockCompuesto,
         unidad_medida: unidadMedidaLabel,
-        // Modificado: Se quitó la marca del combo superior y se enriqueció la lista de 'Incluye'
         detalles: `Precio: S/. ${c.precio_venta_combo || 0} • Stock: ${stockCompuesto} ${unidadMedidaLabel} • Incluye: ${infoComponentes}`,
         componentes: c.productos_componentes?.map((pa: any) => ({
           id_producto_simple: pa.producto_simple_id,
-          cantidadRequerida: pa.cantidad_necesaria
+          // Mantener la consistencia del objeto mapeado para el carrito
+          cantidadRequerida: pa.cantidad_necesaria || pa.cantidad || 1
         })) || []
       });
     });
 
     // 3. Mapear Promociones especiales
     this.promociones.forEach(pr => {
-      const simpleAsociado = this.productosSimples.find(ps => ps.id === pr.id_producto_simple);
-      const nombreSimple = simpleAsociado ? simpleAsociado.descripcion_prod : 'Prod Simple';
-      const stockPromo = simpleAsociado ? Math.floor(simpleAsociado.stock_actual / pr.cantidad_minima) : 0;
+      const simpleAsociado = this.productosSimples.find(ps => ps.id === pr.producto_simple_id);
+      const nombreSimple = simpleAsociado ? simpleAsociado.descripcion_prod : 'Producto no encontrado';
+
+      // Validación de nombres de campo (usa el correcto de tu Firestore)
+      const cantMinima = pr.cantidad_necesaria || pr.cantidad_minima_promocion || 0;
+      const unidadesEnCarrito = mapeoDemandaCarrito[pr.producto_simple_id] || 0;
+      const stockActualDisponible = simpleAsociado ? Math.max(0, simpleAsociado.stock_actual - unidadesEnCarrito) : 0;
+
+      const stockPromo = (simpleAsociado && cantMinima > 0) ? Math.floor(stockActualDisponible / cantMinima) : 0;
 
       unificados.push({
         id: pr.id,
-        nombre: pr.nombre_promocion,
+        nombre: pr.descripcion_promo || 'Promoción sin nombre',
         tipo: 'promocion',
-        precio: pr.precio_oferta || 0,
+        precio: pr.promo_precio_total || 0,
         stock_render: stockPromo,
         unidad_medida: 'Promoción',
-        detalles: `Oferta: ${pr.cantidad_minima} unidades de [${nombreSimple}] a precio especial • Stock disp: ${stockPromo}`,
-        componentes: [{ id_producto_simple: pr.id_producto_simple, cantidadRequerida: pr.cantidad_minima }]
+        detalles: `Oferta: ${cantMinima} unidades de [${nombreSimple}] a S/. ${pr.promo_precio_total || 0} • Stock: ${stockPromo}`,
+        componentes: [{ id_producto_simple: pr.producto_simple_id, cantidadRequerida: cantMinima }]
       });
     });
 
@@ -177,7 +201,7 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
     this.filtrarProductos(this.buscarProductoStr);
   }
 
-  calcularStockCompuestoMaximo(productosComponentes: any[]): number {
+  calcularStockCompuestoMaximo(productosComponentes: any[], demandaCarrito: { [key: string]: number } = {}): number {
     if (!productosComponentes || productosComponentes.length === 0) return 0;
     let maximoPosible = Infinity;
 
@@ -185,11 +209,22 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
       const simple = this.productosSimples.find(ps => ps.id === pa.producto_simple_id);
       if (!simple) return 0;
 
-      const disponible = Math.floor((simple.stock_actual || 0) / (pa.cantidad_necesaria || 1));
+      // ¡ALERTA! Asegúrate de que aquí se use el nombre exacto de tu campo en Firestore 
+      // Si en tu BD se llama 'cantidad', cámbialo a: pa.cantidad
+      const cantidadRequeridaEnCombo = pa.cantidad_necesaria || pa.cantidad || 1;
+
+      // Restamos las unidades que ya están comprometidas en el carrito de compras
+      const unidadesEnCarrito = demandaCarrito[pa.producto_simple_id] || 0;
+      const stockDisponibleReal = Math.max(0, (simple.stock_actual || 0) - unidadesEnCarrito);
+
+      // Calculamos cuántos compuestos completos podemos armar con el stock neto disponible
+      const disponible = Math.floor(stockDisponibleReal / cantidadRequeridaEnCombo);
+
       if (disponible < maximoPosible) {
         maximoPosible = disponible;
       }
     }
+
     return maximoPosible === Infinity ? 0 : maximoPosible;
   }
 
@@ -290,6 +325,7 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
         precioVenta: this.itemSeleccionado.precio,
         cantidad: this.cantidadVenta,
         subtotal: this.itemSeleccionado.precio * this.cantidadVenta,
+        unidad_medida: this.itemSeleccionado.tipo === 'simple' ? (this.itemSeleccionado.unidad_medida || 'Unidad') : '---',
         descripcion_prod_simple: this.itemSeleccionado.tipo === 'simple' ? this.itemSeleccionado.nombre : null,
         descripcion_promo: this.itemSeleccionado.tipo === 'promocion' ? this.itemSeleccionado.detalles : null,
         descripcion_prod_comp: this.itemSeleccionado.tipo === 'compuesto' ? this.itemSeleccionado.nombre : null,
@@ -298,12 +334,14 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
     }
 
     this.recalcularTotalVenta();
+    this.consolidarProductosBusqueda();
     this.resetearSeleccionFiltro();
   }
 
   eliminarDelCarrito(index: number): void {
     this.carrito.splice(index, 1);
     this.recalcularTotalVenta();
+    this.consolidarProductosBusqueda();
   }
 
   recalcularTotalVenta(): void {
@@ -349,21 +387,22 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
       const clientFormValues = this.ventaForm.value;
 
       const productosVendidosPayload = this.carrito.map(item => ({
-        amount: item.cantidad,
-        precio_unitario: item.precioVenta,
+        cantidad: item.cantidad,
+        precio_aplicado: item.precioVenta,
         subtotal: item.subtotal,
         tipo_producto: item.tipo,
         descripcion_prod_simple: item.descripcion_prod_simple,
         descripcion_promo: item.descripcion_promo,
-        descripcion_prod_comp: item.descripcion_prod_comp
+        descripcion_prod_comp: item.descripcion_prod_comp,
+        producto_id: item.itemOriginalId // DIME SI HICE BIEN, QUIERO LOGRAR QUE AL REGISTRAR LA VENTA, CADA PRODUCTO YA SEA SIMPLE, COMPUESTO O PROMOCIÓN, TENGA SU RESPECTIVO ID DE FIRESTORE PARA PODER GUARDARLO CORRECTAMENTE PARA AUDITORIA
       }));
 
       const ventaFinalPayload = {
         empresa_id: this.empresaId,
-        fecha_venta: new Date(),
+        fecha_hora: new Date(),
         total_venta: this.precioVentaTotal,
-        nombre_cliente: clientFormValues.nombre_cliente || 'Cliente Genérico / Ambulante',
-        telefono_cliente: clientFormValues.telefono_cliente || null,
+        nombre_cliente: clientFormValues.nombre_cliente || 'NO ESPECIFICADO',
+        num_cliente: clientFormValues.telefono_cliente || 'NO ESPECIFICADO',
         productos_vendidos: productosVendidosPayload
       };
 
@@ -392,6 +431,7 @@ export class RegistrarVentaComponent implements OnInit, OnDestroy {
     this.carrito = [];
     this.precioVentaTotal = 0;
     this.initFormulario();
+    this.consolidarProductosBusqueda();
     this.resetearSeleccionFiltro();
   }
 
