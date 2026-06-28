@@ -20,9 +20,9 @@ export class PromocionesComponent implements OnInit {
   private inventarioService = inject(InventarioService);
   private dialog = inject(MatDialog);
   private toastr = inject(ToastrService);
+  rolUsuario: string | null = null;
 
   promocionesMapeadas$!: Observable<PromocionTablaPromDto[]>;
-  esAdmin = signal<boolean>(true); 
   private idEmpresaActual = 'Tj3T6JWn5rCLXxkohscz'; 
 
   private paginaActualSubject = new BehaviorSubject<number>(1);
@@ -31,6 +31,8 @@ export class PromocionesComponent implements OnInit {
   totalResultados = 0;
 
   ngOnInit(): void {
+    this.rolUsuario = sessionStorage.getItem('rol');
+
     this.promocionesMapeadas$ = this.inventarioService.obtenerPromocionesMapeadas(this.idEmpresaActual).pipe(
       switchMap((todasLasPromociones: PromocionTablaPromDto[]) => {
         return combineLatest([
@@ -130,4 +132,9 @@ export class PromocionesComponent implements OnInit {
       }
     });
   }
+
+  esAdmin(): boolean {
+    return this.rolUsuario === 'administrador';
+  }
+
 }
