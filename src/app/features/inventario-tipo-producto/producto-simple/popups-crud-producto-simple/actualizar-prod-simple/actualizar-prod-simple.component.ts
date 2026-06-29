@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -20,6 +20,7 @@ export class ActualizarProdSimpleComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<ActualizarProdSimpleComponent>);
   private toastr = inject(ToastrService);
   private data = inject(MAT_DIALOG_DATA);
+  private elementRef = inject(ElementRef);
 
   idProducto!: string;
   productoForm!: FormGroup;
@@ -31,6 +32,17 @@ export class ActualizarProdSimpleComponent implements OnInit {
   buscarProveedor = '';
   showCatDropdown = false;
   showProvDropdown = false;
+  isTypingCat = false;
+  isTypingProv = false;
+
+  @HostListener('document:click', ['$event'])
+  onClickAfuera(event: MouseEvent): void {
+    // Si el elemento clickeado NO está dentro de nuestro cuadro de diálogo
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.showCatDropdown = false;
+      this.showProvDropdown = false;
+    }
+  }
 
   ngOnInit(): void {
     this.idProducto = this.data.idProducto;
@@ -132,14 +144,20 @@ export class ActualizarProdSimpleComponent implements OnInit {
 
   // Filtrado reactivo en tiempo real
   get categoriasFiltradas(): any[] {
-    if (!this.buscarCategoria.trim()) return this.listaCategorias;
+    // Si el dropdown está cerrado o el usuario NO ha tipeado, mostramos TODO
+    if (!this.showCatDropdown || !this.isTypingCat || !this.buscarCategoria.trim()) {
+      return this.listaCategorias;
+    }
     return this.listaCategorias.filter(c =>
       c.nombre_categoria.toLowerCase().includes(this.buscarCategoria.toLowerCase())
     );
   }
 
   get proveedoresFiltrados(): any[] {
-    if (!this.buscarProveedor.trim()) return this.listaProveedores;
+    // Si el dropdown está cerrado o el usuario NO ha tipeado, mostramos TODO
+    if (!this.showProvDropdown || !this.isTypingProv || !this.buscarProveedor.trim()) {
+      return this.listaProveedores;
+    }
     return this.listaProveedores.filter(p =>
       p.nombre_proveedor.toLowerCase().includes(this.buscarProveedor.toLowerCase())
     );
@@ -149,21 +167,29 @@ export class ActualizarProdSimpleComponent implements OnInit {
     this.buscarCategoria = cat.nombre_categoria;
     this.productoForm.patchValue({ id_categoria: cat.id });
     this.showCatDropdown = false;
+    this.isTypingCat = false; // 🌟 Reseteamos bandera al seleccionar
   }
 
   seleccionarProveedor(prov: any): void {
     this.buscarProveedor = prov.nombre_proveedor;
     this.productoForm.patchValue({ id_proveedor: prov.id });
     this.showProvDropdown = false;
+    this.isTypingProv = false; // 🌟 Reseteamos bandera al seleccionar
   }
 
   evaluarLimpiezaCelda(tipo: 'cat' | 'prov'): void {
     setTimeout(() => {
-      if (tipo === 'cat' && !this.buscarCategoria.trim()) {
-        this.productoForm.patchValue({ id_categoria: '' });
+      if (tipo === 'cat') {
+        if (!this.buscarCategoria.trim()) {
+          this.productoForm.patchValue({ id_categoria: '' });
+        }
+        this.showCatDropdown = false; // 🌟 Asegura cerrar si sale vía teclado (Tab)
       }
-      if (tipo === 'prov' && !this.buscarProveedor.trim()) {
-        this.productoForm.patchValue({ id_proveedor: '' });
+      if (tipo === 'prov') {
+        if (!this.buscarProveedor.trim()) {
+          this.productoForm.patchValue({ id_proveedor: '' });
+        }
+        this.showProvDropdown = false; // 🌟 Asegura cerrar si sale vía teclado (Tab)
       }
     }, 200);
   }

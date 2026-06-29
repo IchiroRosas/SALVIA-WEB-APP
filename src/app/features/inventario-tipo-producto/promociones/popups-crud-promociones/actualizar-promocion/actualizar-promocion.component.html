@@ -13,13 +13,14 @@
     <div class="dialog-content">
 
       <div class="form-group span-6 relative">
-        <label class="form-label">Buscar Producto Base (Simple)</label>
+        <label class="form-label">Producto Base (Simple)</label>
         <div class="search-input-wrapper">
           <input type="text" formControlName="buscarProducto" class="form-input search-input"
             placeholder="Escribe la descripción o marca del producto..." (focus)="mostrarDropdown = true"
             (blur)="unfocusDropdown()" autocomplete="off">
 
-          <button type="button" *ngIf="productoSeleccionado" class="btn-clear-search" (click)="limpiarSeleccion()">
+          <button type="button" *ngIf="productoSeleccionado && !promoForm.get('buscarProducto')?.disabled"
+            class="btn-clear-search" (click)="limpiarSeleccion()">
             &times;
           </button>
         </div>
@@ -27,7 +28,8 @@
         <div class="autocomplete-dropdown" *ngIf="mostrarDropdown && (productosFiltrados$ | async) as filtrados">
           <div *ngFor="let prod of filtrados" class="dropdown-item" (mousedown)="seleccionarProducto(prod)">
             <span class="item-main">{{ prod.descripcion_prod }}</span>
-            <span class="item-sub">{{ prod.marca_prod }} — Stock actual: {{ prod.stock_actual }} {{ prod.unidad_medida }}</span>
+            <span class="item-sub">{{ prod.marca_prod }} — Stock actual: {{ prod.stock_actual }} {{ prod.unidad_medida
+              }}</span>
           </div>
           <div *ngIf="filtrados.length === 0 && promoForm.get('buscarProducto')?.value" class="dropdown-no-results">
             No se encontraron coincidencias de productos activos.
@@ -44,10 +46,12 @@
 
         <div class="form-group span-2">
           <label class="form-label">Cantidad Requerida</label>
-          <input type="number" formControlName="cantidad_necesaria" class="form-input text-right" step="0.001" min="0">
+
+          <input type="number" formControlName="cantidad_necesaria" class="form-input text-right static-badge-box" step="0.001" min="0" readonly>
+
           <small class="error-msg"
             *ngIf="promoForm.get('cantidad_necesaria')?.touched && promoForm.get('cantidad_necesaria')?.invalid">
-            La cantidad debe ser mayor a 0 (Mínimo 0.001). 
+            La cantidad debe ser mayor a 0 (Mínimo 0.001).
           </small>
         </div>
 

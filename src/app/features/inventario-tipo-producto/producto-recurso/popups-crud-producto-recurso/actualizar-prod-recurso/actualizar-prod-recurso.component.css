@@ -1,6 +1,8 @@
 .dialog-container {
     padding: 24px;
     font-family: system-ui, -apple-system, sans-serif;
+    /* 🌟 CRÍTICO: Permite que el dropdown flote por fuera de las esquinas del modal */
+    overflow: visible !important;
 }
 
 .dialog-header h2 {
@@ -21,6 +23,8 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+    /* 🌟 CRÍTICO: Asegura que el formulario reactivo no corte lo absoluto */
+    overflow: visible !important;
 }
 
 .form-group {
@@ -83,8 +87,9 @@
     list-style: none;
     max-height: 160px;
     overflow-y: auto;
-    z-index: 999;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    /* 🌟 CRÍTICO: Eleva el menú sobre las capas de interacción nativas del MatDialog */
+    z-index: 99999 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
 }
 
 .autocomplete-dropdown li {
@@ -146,4 +151,16 @@
     text-align: center;
     color: #6b7280;
     font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   ESTILOS PARA CAMPOS BLOQUEADOS EN EDICIÓN (READONLY)
+   ========================================================================== */
+.form-group input[readonly] {
+    background-color: #f3f4f6 !important; /* Fondo gris slate-100 */
+    color: #6b7280 !important;            /* Texto gris slate-500 */
+    border-color: #e5e7eb !important;     /* Borde suavizado */
+    cursor: not-allowed !important;       /* Cursor de bloqueo */
+    box-shadow: none !important;          /* Elimina sombras residuales */
+    pointer-events: none;                 /* Desactiva cualquier interacción por clic */
 }
