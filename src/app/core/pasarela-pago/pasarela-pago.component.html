@@ -1,55 +1,60 @@
-<div class="checkout-modal">
-  <h2 class="modal-title">Pasarela de Pago Segura</h2>
-  <p class="modal-subtitle">Introduce los datos de tu tarjeta para proceder con el alta de la empresa.</p>
+<div class="checkout-container">
+  <div class="checkout-box">
+    <h2 class="form-title">Pasarela de Pago Segura</h2>
+    <p class="form-subtitle">Introduce los datos de tu tarjeta para proceder con la activación del servicio.</p>
 
-  <form [formGroup]="pagoForm" (ngSubmit)="procesarPago()">
+    <form [formGroup]="pagoForm" (ngSubmit)="procesarPago()">
 
-    <div class="form-group">
-      <label for="nombreTitular">Nombre en la tarjeta</label>
-      <input type="text" id="nombreTitular" placeholder="Nombre del titular" formControlName="nombreTitular">
-      @if (pagoForm.controls['nombreTitular'].invalid && pagoForm.controls['nombreTitular'].touched) {
-      <span class="error-text">El nombre del titular es requerido.</span>
-      }
-    </div>
-
-    <div class="form-group">
-      <label for="numeroTarjeta">Número de tarjeta</label>
-      <input type="text" id="numeroTarjeta" placeholder="1234 5678 1234 5678" formControlName="numeroTarjeta"
-        maxlength="19" (input)="formatearNumeroTarjeta($event)">
-      @if (pagoForm.controls['numeroTarjeta'].invalid && pagoForm.controls['numeroTarjeta'].touched) {
-      <span class="error-text">Número inválido (deben ser 16 dígitos).</span>
-      }
-    </div>
-    
-    <div class="form-row">
-      <div class="form-group half">
-        <label for="expiracion">Expiración</label>
-        <input 
-          type="text" 
-          id="expiracion" 
-          placeholder="MM/AA" 
-          formControlName="expiracion" 
-          maxlength="5" 
-          (input)="formatearExpiracion($event)">
-        @if (pagoForm.controls['expiracion'].invalid && pagoForm.controls['expiracion'].touched) {
-          <span class="error-text">Formato inválido (MM/AA).</span>
+      <div class="input-group">
+        <label for="nombreTitular">Nombre en la tarjeta</label>
+        <input type="text" id="nombreTitular" placeholder="Nombre del titular..." formControlName="nombreTitular">
+        @if (pagoForm.controls['nombreTitular'].invalid && pagoForm.controls['nombreTitular'].touched) {
+          <div class="error-message"><span>El nombre del titular es requerido.</span></div>
         }
       </div>
 
-      <div class="form-group half">
-        <label for="cvv">CVV</label>
-        <input type="password" id="cvv" placeholder="123" formControlName="cvv" maxlength="4">
-        @if (pagoForm.controls['cvv'].invalid && pagoForm.controls['cvv'].touched) {
-        <span class="error-text">CVV inválido (3 o 4 dígitos).</span>
+      <div class="input-group">
+        <label for="numeroTarjeta">Número de tarjeta</label>
+        <input type="text" id="numeroTarjeta" placeholder="1234 5678 1234 5678" formControlName="numeroTarjeta"
+          maxlength="19" (input)="formatearNumeroTarjeta($event)">
+        @if (pagoForm.controls['numeroTarjeta'].invalid && pagoForm.controls['numeroTarjeta'].touched) {
+          <div class="error-message"><span>Número inválido (deben ser 16 dígitos).</span></div>
         }
       </div>
-    </div>
+      
+      <div class="form-row">
+        <div class="input-group half">
+          <label for="expiracion">Expiración</label>
+          <input 
+            type="text" 
+            id="expiracion" 
+            placeholder="MM/AA" 
+            formControlName="expiracion" 
+            maxlength="5" 
+            (input)="formatearExpiracion($event)">
+          @if (pagoForm.controls['expiracion'].invalid && pagoForm.controls['expiracion'].touched) {
+            <div class="error-message"><span>Formato inválido (MM/AA).</span></div>
+          }
+        </div>
 
-    <div class="modal-actions">
-      <button type="button" class="btn-cancelar" (click)="cancelar()">Cancelar</button>
-      <button type="submit" class="btn-pagar" [disabled]="pagoForm.invalid || isPaying">
-        {{ isPaying ? 'Procesando...' : 'PAGAR S/.25.00' }}
-      </button>
-    </div>
-  </form>
+        <div class="input-group half">
+          <label for="cvv">CVV</label>
+          <input type="password" id="cvv" placeholder="•••" formControlName="cvv" maxlength="4">
+          @if (pagoForm.controls['cvv'].invalid && pagoForm.controls['cvv'].touched) {
+            <div class="error-message"><span>CVV inválido (3 o 4 dígitos).</span></div>
+          }
+        </div>
+      </div>
+
+      <div class="actions-container">
+        <button type="submit" class="btn-primary" [disabled]="pagoForm.invalid || isPaying">
+          <strong>{{ isPaying ? 'Procesando...' : 'PAGAR S/. 25.00' }}</strong>
+        </button>
+        
+        <button type="button" class="btn-primary btn-back" (click)="cancelar()">
+          <strong>Cancelar</strong>
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
