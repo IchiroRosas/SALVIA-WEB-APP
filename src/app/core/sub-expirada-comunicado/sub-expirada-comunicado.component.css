@@ -76,12 +76,12 @@ button {
 }
 
 .btn-renovar {
-  background-color: #9cddc6; /* Color menta/secundario de tu marca Salvia */
+  background-color: #7692c7; 
   color: #0f172a;
 }
 
 .btn-renovar:hover {
-  background-color: #76c7aa;
+  background-color: #5a73ff;
   transform: scale(1.02);
 }
 

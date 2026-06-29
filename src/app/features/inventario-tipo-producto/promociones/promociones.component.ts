@@ -1,7 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, BehaviorSubject, switchMap, map, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, switchMap, map, combineLatest, of } from 'rxjs'; // 🌟 Se añade 'of'
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Firestore, doc, docData } from '@angular/fire/firestore'; // 🌟 Se añade Firestore
+import { Auth, user } from '@angular/fire/auth';                   // 🌟 Se añade Auth y user
 import { InventarioService } from '../../services/inventario.service';
 import { PromocionTablaPromDto } from '../../../shared/models/dto';
 import { DetallePromocionComponent } from '../promociones/popups-crud-promociones/detalle-promocion/detalle-promocion.component';
@@ -20,10 +22,13 @@ export class PromocionesComponent implements OnInit {
   private inventarioService = inject(InventarioService);
   private dialog = inject(MatDialog);
   private toastr = inject(ToastrService);
+  private firestore = inject(Firestore); // 🌟 Inyección de Firestore
+  private auth = inject(Auth);           // 🌟 Inyección de Firebase Auth
+
   rolUsuario: string | null = null;
+  empresaId: string | null = null;       // 🌟 Guardará el ID dinámico de la empresa
 
   promocionesMapeadas$!: Observable<PromocionTablaPromDto[]>;
-  private idEmpresaActual = 'Tj3T6JWn5rCLXxkohscz'; 
 
   private paginaActualSubject = new BehaviorSubject<number>(1);
   paginaActual = 1;
@@ -33,7 +38,26 @@ export class PromocionesComponent implements OnInit {
   ngOnInit(): void {
     this.rolUsuario = sessionStorage.getItem('rol');
 
-    this.promocionesMapeadas$ = this.inventarioService.obtenerPromocionesMapeadas(this.idEmpresaActual).pipe(
+    this.promocionesMapeadas$ = user(this.auth).pipe(
+      // 1. Obtener datos del usuario logueado en Firebase
+      switchMap(authUser => {
+        if (!authUser) return of(null);
+        const userDocRef = doc(this.firestore, 'users', authUser.uid);
+        return docData(userDocRef);
+      }),
+      // 2. Recuperar el empresa_id e invocar al servicio de inventario
+      switchMap((userData: any) => {
+        if (!userData || !userData.empresa_id) {
+          return of([]);
+        }
+
+        const miEmpresaId = userData.empresa_id;
+        this.empresaId = miEmpresaId; // Almacenamos el ID de la empresa de forma interna
+
+        // Pasamos el ID de la empresa dinámico obtenido de Firestore
+        return this.inventarioService.obtenerPromocionesMapeadas(miEmpresaId);
+      }),
+      // 3. Aplicar Filtro reactivo multi-campo y paginación
       switchMap((todasLasPromociones: PromocionTablaPromDto[]) => {
         return combineLatest([
           this.paginaActualSubject,
@@ -41,12 +65,12 @@ export class PromocionesComponent implements OnInit {
         ]).pipe(
           map(([pagina, termino]) => {
             
-            // 🌟 NUEVO: Filtro de doble criterio (Nombre de Promo O Nombre de Producto)
+            // Filtro de doble criterio (Nombre de Promo O Nombre de Producto)
             const filtradas = todasLasPromociones.filter(p => {
               const cumplePromo = p.descripcionPromo ? p.descripcionPromo.toLowerCase().includes(termino) : false;
               const cumpleProducto = p.productoNombre ? p.productoNombre.toLowerCase().includes(termino) : false;
               
-              return cumplePromo || cumpleProducto; // Se muestra si coincide con cualquiera de los dos
+              return cumplePromo || cumpleProducto; 
             });
 
             this.totalResultados = filtradas.length;
@@ -64,6 +88,7 @@ export class PromocionesComponent implements OnInit {
     );
   }
 
+  // 🌟 Se mantienen intactos todos tus métodos de ordenación, ventanas y utilidades sin alterar nombres
   get totalPaginas(): number {
     return Math.ceil(this.totalResultados / this.itemsPorPagina);
   }
@@ -136,5 +161,4 @@ export class PromocionesComponent implements OnInit {
   esAdmin(): boolean {
     return this.rolUsuario === 'administrador';
   }
-
 }

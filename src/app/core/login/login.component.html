@@ -7,7 +7,7 @@
     <form [formGroup]="loginForm"> 
       <div class="input-group">
         <label for="usuario">Correo</label>
-        <input type="text" id="usuario" placeholder="Escribir..." formControlName="correo">
+        <input type="text" id="usuario" placeholder="Ingresa tu correo..." formControlName="correo">
         
         @if (loginForm.controls['correo'].invalid && (loginForm.controls['correo'].dirty || loginForm.controls['correo'].touched)) {
           <div class="error-message">
@@ -18,7 +18,7 @@
 
       <div class="input-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" placeholder="Escribir..." formControlName="password">
+        <input type="password" id="password" placeholder="Ingresa tu contraseña..." formControlName="password">
         
         @if (loginForm.controls['password'].invalid && (loginForm.controls['password'].dirty || loginForm.controls['password'].touched)) {
           <div class="error-message">

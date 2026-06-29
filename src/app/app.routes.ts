@@ -23,6 +23,10 @@ export const routes: Routes = [
         path: 'activar-cuenta',
         loadComponent: () => import('./core/activate-user/activate-user.component').then(m => m.ActivateUserComponent)
     },
+    {
+        path: 'pasarela-pago',
+        loadComponent: () => import('./core/pasarela-pago/pasarela-pago.component').then(m => m.PasarelaPagoComponent)
+    },
 
     // ==========================================
     // 2. MÓDULOS DE LA BODEGA (Con Navbar + app-body permanente)
