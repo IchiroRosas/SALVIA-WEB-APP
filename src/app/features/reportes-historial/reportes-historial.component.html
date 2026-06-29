@@ -1,1 +1,28 @@
-<p>reportes-historial works!</p>
+<div class="historial-container">
+  <h2>Historial y Reportes Inteligentes 🤖</h2>
+  <p class="subtitle">Consulta con la IA de Gemini de forma segura desde el servidor.</p>
+
+  <div class="form-group">
+    <label for="inputPrompt">Escribe tu consulta:</label>
+    <textarea 
+      id="inputPrompt"
+      [(ngModel)]="userPrompt" 
+      placeholder="Ej: Genera un resumen de ventas del mes o hazme una pregunta..."
+      [disabled]="isLoading">
+    </textarea>
+  </div>
+
+  <button (click)="enviarAI()" [disabled]="isLoading || !userPrompt.trim()">
+    {{ isLoading ? 'Procesando consulta...' : 'Consultar a Gemini' }}
+  </button>
+
+  <div class="form-group">
+    <label for="outputResponse">Respuesta de la IA:</label>
+    <textarea 
+      id="outputResponse" 
+      [(ngModel)]="aiResponse" 
+      readonly
+      placeholder="La IA analizará tu petición y responderá aquí...">
+    </textarea>
+  </div>
+</div>
