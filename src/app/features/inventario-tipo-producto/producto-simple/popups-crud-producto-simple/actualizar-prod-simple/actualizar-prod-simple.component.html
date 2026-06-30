@@ -21,12 +21,13 @@
     <div class="form-row">
       <div class="form-group val-half">
         <label for="marca_prod">Marca</label>
-        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Costeño" />
+        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Costeño" readonly />
       </div>
 
       <div class="form-group val-half">
-        <label for="unidad_medida">Unidad de Medida Venta *</label>
+        <label for="unidad_medida">Unidad de Medida Venta</label>
         <input id="unidad_medida" type="text" formControlName="unidad_medida" placeholder="Ej. Kilogramo / Unidad"
+          readonly
           [class.input-error]="productoForm.get('unidad_medida')?.invalid && productoForm.get('unidad_medida')?.touched" />
       </div>
     </div>
@@ -60,44 +61,17 @@
     <div class="form-group relative-container">
       <label for="categoria">Categoría</label>
 
-      <input type="text" id="categoria"
-        [class.input-error]="productoForm.get('id_categoria')?.invalid && productoForm.get('id_categoria')?.touched"
-        [(ngModel)]="buscarCategoria" [ngModelOptions]="{standalone: true}"
-        (focus)="showCatDropdown = true; isTypingCat = false" (input)="isTypingCat = true; showCatDropdown = true"
-        (blur)="evaluarLimpiezaCelda('cat')" placeholder="Seleccione o busque una categoría..." autocomplete="off" />
-
-      <ul class="autocomplete-dropdown" *ngIf="showCatDropdown">
-        <li *ngFor="let cat of categoriasFiltradas" (mousedown)="seleccionarCategoria(cat)">
-          {{ cat.nombre_categoria }}
-        </li>
-
-        <li *ngIf="categoriasFiltradas.length === 0" style="color: #9ca3af; font-style: italic; cursor: default;">
-          ⚠️ No se encontró la categoría "{{ buscarCategoria }}"
-        </li>
-      </ul>
+      <input type="text" id="categoria" [(ngModel)]="buscarCategoria" [ngModelOptions]="{standalone: true}"
+        placeholder="Categoría asignada" autocomplete="off" readonly />
 
       <input type="hidden" formControlName="id_categoria">
     </div>
 
-
     <div class="form-group relative-container">
       <label for="proveedor">Proveedor</label>
 
-      <input type="text" id="proveedor"
-        [class.input-error]="productoForm.get('id_proveedor')?.invalid && productoForm.get('id_proveedor')?.touched"
-        [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
-        (focus)="showProvDropdown = true; isTypingProv = false" (input)="isTypingProv = true; showProvDropdown = true"
-        (blur)="evaluarLimpiezaCelda('prov')" placeholder="Seleccione o busque un proveedor..." autocomplete="off" />
-
-      <ul class="autocomplete-dropdown" *ngIf="showProvDropdown">
-        <li *ngFor="let prov of proveedoresFiltrados" (mousedown)="seleccionarProveedor(prov)">
-          {{ prov.nombre_proveedor }}
-        </li>
-
-        <li *ngIf="proveedoresFiltrados.length === 0" style="color: #9ca3af; font-style: italic; cursor: default;">
-          ⚠️ No se encontró el proveedor "{{ buscarProveedor }}"
-        </li>
-      </ul>
+      <input type="text" id="proveedor" [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
+        placeholder="Proveedor asignado" autocomplete="off" readonly />
 
       <input type="hidden" formControlName="id_proveedor">
     </div>
