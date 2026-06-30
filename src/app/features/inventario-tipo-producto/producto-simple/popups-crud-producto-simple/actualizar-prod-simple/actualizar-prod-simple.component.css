@@ -160,3 +160,15 @@
   color: #6b7280;
   font-size: 0.95rem;
 }
+
+/* ==========================================================================
+   ESTILOS PARA CAMPOS BLOQUEADOS EN EDICIÓN (READONLY)
+   ========================================================================== */
+.form-group input[readonly] {
+    background-color: #f3f4f6 !important; /* Fondo gris suave (slate-100) */
+    color: #6b7280 !important;            /* Texto gris atenuado (slate-500) */
+    border-color: #e5e7eb !important;     /* Borde suavizado */
+    cursor: not-allowed !important;       /* Icono de prohibido al pasar el mouse */
+    box-shadow: none !important;          /* Elimina efectos focales residuales */
+    pointer-events: none;                 /* Inhabilita interacciones de clic directo */
+}

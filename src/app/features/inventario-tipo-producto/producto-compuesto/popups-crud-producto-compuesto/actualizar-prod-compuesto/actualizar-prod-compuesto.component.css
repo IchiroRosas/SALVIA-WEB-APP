@@ -422,3 +422,15 @@
 @keyframes spin-loader {
     to { transform: rotate(360deg); }
 }
+
+/* ==========================================================================
+   3. ESTILOS PARA CAMPOS BLOQUEADOS EN EDICIÓN (READONLY)
+   ========================================================================== */
+.form-control[readonly] {
+    background-color: #f3f4f6 !important; /* Fondo gris sutil (slate-100) */
+    color: #6b7280 !important;            /* Texto gris (slate-500) */
+    border-color: #e5e7eb !important;     /* Borde suavizado */
+    cursor: not-allowed !important;       /* Cursor de prohibición */
+    box-shadow: none !important;          /* Elimina efectos de focus residuales */
+    pointer-events: none;                 /* Evita interacciones de selección o click */
+}

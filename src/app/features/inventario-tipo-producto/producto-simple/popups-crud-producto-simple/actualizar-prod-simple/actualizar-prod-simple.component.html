@@ -21,12 +21,13 @@
     <div class="form-row">
       <div class="form-group val-half">
         <label for="marca_prod">Marca</label>
-        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Costeño" />
+        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Costeño" readonly />
       </div>
 
       <div class="form-group val-half">
-        <label for="unidad_medida">Unidad de Medida Venta *</label>
+        <label for="unidad_medida">Unidad de Medida Venta</label>
         <input id="unidad_medida" type="text" formControlName="unidad_medida" placeholder="Ej. Kilogramo / Unidad"
+          readonly
           [class.input-error]="productoForm.get('unidad_medida')?.invalid && productoForm.get('unidad_medida')?.touched" />
       </div>
     </div>
@@ -49,7 +50,7 @@
         </small>
         }
       </div>
-      
+
       <div class="form-group">
         <label for="stock_actual">Stock Actual *</label>
         <input id="stock_actual" type="number" formControlName="stock_actual"
@@ -58,37 +59,21 @@
     </div>
 
     <div class="form-group relative-container">
-      <label>Categoría</label>
-      <input type="text" [(ngModel)]="buscarCategoria" [ngModelOptions]="{standalone: true}"
-        placeholder="Escribe para buscar una categoría..." (focus)="showCatDropdown = true"
-        (blur)="showCatDropdown = false; evaluarLimpiezaCelda('cat')" autocomplete="off" />
+      <label for="categoria">Categoría</label>
 
-      @if (showCatDropdown && categoriasFiltradas.length > 0) {
-      <ul class="autocomplete-dropdown">
-        @for (cat of categoriasFiltradas; track cat.id) {
-        <li (mousedown)="seleccionarCategoria(cat)">
-          {{ cat.nombre_categoria }}
-        </li>
-        }
-      </ul>
-      }
+      <input type="text" id="categoria" [(ngModel)]="buscarCategoria" [ngModelOptions]="{standalone: true}"
+        placeholder="Categoría asignada" autocomplete="off" readonly />
+
+      <input type="hidden" formControlName="id_categoria">
     </div>
 
     <div class="form-group relative-container">
-      <label>Proveedor</label>
-      <input type="text" [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
-        placeholder="Escribe para buscar un proveedor..." (focus)="showProvDropdown = true"
-        (blur)="showProvDropdown = false; evaluarLimpiezaCelda('prov')" autocomplete="off" />
+      <label for="proveedor">Proveedor</label>
 
-      @if (showProvDropdown && proveedoresFiltrados.length > 0) {
-      <ul class="autocomplete-dropdown">
-        @for (prov of proveedoresFiltrados; track prov.id) {
-        <li (mousedown)="seleccionarProveedor(prov)">
-          {{ prov.nombre_proveedor }}
-        </li>
-        }
-      </ul>
-      }
+      <input type="text" id="proveedor" [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
+        placeholder="Proveedor asignado" autocomplete="off" readonly />
+
+      <input type="hidden" formControlName="id_proveedor">
     </div>
 
     <footer class="dialog-actions">

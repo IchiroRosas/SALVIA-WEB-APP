@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ export class ActualizarProdRecursoComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<ActualizarProdRecursoComponent>);
   private toastr = inject(ToastrService);
   private data = inject(MAT_DIALOG_DATA);
+  private elementRef = inject(ElementRef);
 
   idRecurso!: string;
   recursoForm!: FormGroup;
@@ -30,6 +31,27 @@ export class ActualizarProdRecursoComponent implements OnInit {
   listaProveedores: any[] = [];
   buscarProveedor = '';
   showProvDropdown = false;
+  isTypingProv = false;
+
+  @HostListener('document:mousedown', ['$event'])
+  onClickAfuera(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    // Buscamos si el click/arrastre ocurrió dentro del contenedor relativo del proveedor
+    const dentroContenedorProveedor = target.closest('.relative-container');
+
+    // Si hizo click en cualquier otra parte del formulario o fuera del diálogo, cerramos el dropdown
+    if (!dentroContenedorProveedor) {
+      this.showProvDropdown = false;
+      this.limpiarCeldaSiEstaVacia();
+    }
+  }
+
+  limpiarCeldaSiEstaVacia(): void {
+    if (!this.buscarProveedor.trim()) {
+      this.recursoForm.patchValue({ id_proveedor: '' });
+    }
+  }
 
   ngOnInit(): void {
     // Capturamos el ID del recurso enviado desde el componente de listado
@@ -59,8 +81,8 @@ export class ActualizarProdRecursoComponent implements OnInit {
 
       // 2. Cargar Proveedores Activos de la empresa
       const provQuery = query(
-        collection(this.firestore, 'proveedores'), 
-        where('empresa_id', '==', miEmpresaId), 
+        collection(this.firestore, 'proveedores'),
+        where('empresa_id', '==', miEmpresaId),
         where('activo', '==', true)
       );
       const provSnap = await getDocs(provQuery);
@@ -99,7 +121,11 @@ export class ActualizarProdRecursoComponent implements OnInit {
 
   // Filtrado reactivo en tiempo real para proveedores
   get proveedoresFiltrados(): any[] {
-    if (!this.buscarProveedor.trim()) return this.listaProveedores;
+    // Si el dropdown está cerrado, si NO está escribiendo, o si el buscador está vacío: muestra TODO
+    if (!this.showProvDropdown || !this.isTypingProv || !this.buscarProveedor.trim()) {
+      return this.listaProveedores;
+    }
+
     return this.listaProveedores.filter(p =>
       p['nombre_proveedor']?.toLowerCase().includes(this.buscarProveedor.toLowerCase())
     );
@@ -109,12 +135,16 @@ export class ActualizarProdRecursoComponent implements OnInit {
     this.buscarProveedor = prov['nombre_proveedor'];
     this.recursoForm.patchValue({ id_proveedor: prov.id });
     this.showProvDropdown = false;
+    this.isTypingProv = false; // 🌟 Reseteamos la bandera aquí
   }
 
   evaluarLimpiezaCelda(): void {
     setTimeout(() => {
-      if (!this.buscarProveedor.trim()) {
-        this.recursoForm.patchValue({ id_proveedor: '' });
+      const elementoActivo = document.activeElement as HTMLElement;
+      // Solo si el foco se mudó a un input externo al combobox, aplicamos el cierre
+      if (elementoActivo && !elementoActivo.closest('.relative-container')) {
+        this.limpiarCeldaSiEstaVacia();
+        this.showProvDropdown = false;
       }
     }, 200);
   }

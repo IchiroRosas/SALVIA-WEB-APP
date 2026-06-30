@@ -89,7 +89,7 @@ export class ActualizarPromocionComponent {
 
   private inicializarFormulario(): void {
     this.promoForm = this.fb.group({
-      buscarProducto: ['', Validators.required],
+      buscarProducto: [{ value: '', disabled: true }, Validators.required],
       producto_simple_id: ['', Validators.required],
       descripcion_promo: ['', [Validators.required, Validators.minLength(3)]],
       cantidad_necesaria: [0, [Validators.required, Validators.min(0.001)]],
@@ -180,6 +180,8 @@ export class ActualizarPromocionComponent {
       return;
     }
 
+    const formValues = this.promoForm.getRawValue();
+
     // FLUJO DE CONFIRMACIONES SWEETALERT ADAPTADO A ACTUALIZACIÓN
     if (this.mostrarAdvertenciaMargen) {
       const result = await Swal.fire({
@@ -213,11 +215,11 @@ export class ActualizarPromocionComponent {
     }
 
     const promocionModificada = {
-      producto_simple_id: this.promoForm.value.producto_simple_id,
-      descripcion_promo: this.promoForm.value.descripcion_promo.trim(),
-      cantidad_necesaria: Number(this.promoForm.value.cantidad_necesaria),
-      promo_precio_total: Number(this.promoForm.value.promo_precio_total),
-      unidad_medida_promocion: this.promoForm.value.unidad_medida_promocion.trim()
+      producto_simple_id: formValues.producto_simple_id,
+      descripcion_promo: formValues.descripcion_promo.trim(),
+      cantidad_necesaria: Number(formValues.cantidad_necesaria),
+      promo_precio_total: Number(formValues.promo_precio_total),
+      unidad_medida_promocion: formValues.unidad_medida_promocion.trim()
     };
 
     try {
@@ -237,5 +239,5 @@ export class ActualizarPromocionComponent {
   cerrar(): void {
     this.dialogRef.close(false);
   }
-  
+
 }

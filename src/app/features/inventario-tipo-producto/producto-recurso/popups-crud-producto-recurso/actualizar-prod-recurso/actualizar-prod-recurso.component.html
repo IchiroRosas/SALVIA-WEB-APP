@@ -1,27 +1,27 @@
 <div class="dialog-container">
   @if (isLoading) {
   <div class="loading-state">
-    <p>Cargando información del recurso...</p>
+    <p>Cargando información del producto...</p>
   </div>
   } @else {
   <header class="dialog-header">
-    <h2>Actualizar Recurso Interno</h2>
-    <p>Modifica los campos del formulario para actualizar el registro en el inventario</p>
+    <h2>Actualizar Producto de Uso Interno</h2>
+    <p>Modifica los campos del formulario para actualizar el recurso en el inventario</p>
   </header>
 
   <form [formGroup]="recursoForm" (ngSubmit)="actualizar()" class="dialog-form">
 
     <div class="form-group">
-      <label for="descripcion_prod">Descripción del Recurso *</label>
+      <label for="descripcion_prod">Descripción del Producto *</label>
       <input id="descripcion_prod" type="text" formControlName="descripcion_prod"
-        placeholder="Ej. Paquete de bolsas plásticas x100UND"
+        placeholder="Ej. Papel Toalla Interfoliado"
         [class.input-error]="recursoForm.get('descripcion_prod')?.invalid && recursoForm.get('descripcion_prod')?.touched" />
     </div>
 
     <div class="form-row">
       <div class="form-group val-half">
         <label for="marca_prod">Marca</label>
-        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Alpha" />
+        <input id="marca_prod" type="text" formControlName="marca_prod" placeholder="Ej. Elite" readonly/>
       </div>
 
       <div class="form-group val-half">
@@ -32,21 +32,26 @@
     </div>
 
     <div class="form-group relative-container">
-      <label>Proveedor *</label>
-      <input type="text" [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
-        placeholder="Escribe para buscar un proveedor..." (focus)="showProvDropdown = true"
-        (blur)="showProvDropdown = false; evaluarLimpiezaCelda()" autocomplete="off"
-        [class.input-error]="recursoForm.get('id_proveedor')?.invalid && recursoForm.get('id_proveedor')?.touched" />
+      <label for="proveedor">Proveedor *</label>
 
-      @if (showProvDropdown && proveedoresFiltrados.length > 0) {
-      <ul class="autocomplete-dropdown">
-        @for (prov of proveedoresFiltrados; track prov.id) {
-        <li (mousedown)="seleccionarProveedor(prov)">
+      <input type="text" id="proveedor"
+        [class.input-error]="recursoForm.get('id_proveedor')?.invalid && recursoForm.get('id_proveedor')?.touched"
+        [(ngModel)]="buscarProveedor" [ngModelOptions]="{standalone: true}"
+        (focus)="showProvDropdown = true; isTypingProv = false" (input)="isTypingProv = true; showProvDropdown = true"
+        (keyup.tab)="evaluarLimpiezaCelda()" placeholder="Seleccione o busque un proveedor..." autocomplete="off" readonly/>
+
+      <ul class="autocomplete-dropdown" *ngIf="showProvDropdown" (mousedown)="$event.preventDefault()">
+        <li *ngFor="let prov of proveedoresFiltrados"
+          (mousedown)="seleccionarProveedor(prov); $event.stopPropagation()">
           {{ prov.nombre_proveedor }}
         </li>
-        }
+
+        <li *ngIf="proveedoresFiltrados.length === 0" style="color: #9ca3af; font-style: italic; cursor: default;">
+          ⚠️ No se encontró el proveedor "{{ buscarProveedor }}"
+        </li>
       </ul>
-      }
+
+      <input type="hidden" formControlName="id_proveedor">
     </div>
 
     <footer class="dialog-actions">

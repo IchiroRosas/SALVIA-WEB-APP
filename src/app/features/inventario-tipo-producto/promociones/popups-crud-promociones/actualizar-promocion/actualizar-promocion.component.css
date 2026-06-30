@@ -101,6 +101,14 @@
   box-shadow: 0 0 0 3px rgba(39, 101, 235, 0.1);
 }
 
+.form-input:disabled {
+  background-color: #f1f5f9;  /* Mismo fondo de la unidad de medida */
+  border: 1px solid #cbd5e1;  /* Mismo borde de la unidad de medida */
+  color: #475569;            /* Color neutro oscuro legible */
+  cursor: not-allowed;       /* Indicador visual de campo bloqueado */
+  box-shadow: none !important;
+}
+
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 
