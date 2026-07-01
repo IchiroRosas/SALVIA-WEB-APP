@@ -50,3 +50,5 @@ serviceAccountKey.json
 # Data extraída de la base de datos para pruebas
 mis_catalogos_base.json
 extractor.js
+
+
