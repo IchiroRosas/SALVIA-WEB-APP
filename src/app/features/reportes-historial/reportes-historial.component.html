@@ -1,28 +1,152 @@
-<div class="historial-container">
-  <h2>Historial y Reportes Inteligentes 🤖</h2>
-  <p class="subtitle">Consulta con la IA de Gemini de forma segura desde el servidor.</p>
-
-  <div class="form-group">
-    <label for="inputPrompt">Escribe tu consulta:</label>
-    <textarea 
-      id="inputPrompt"
-      [(ngModel)]="userPrompt" 
-      placeholder="Ej: Genera un resumen de ventas del mes o hazme una pregunta..."
-      [disabled]="isLoading">
-    </textarea>
-  </div>
-
-  <button (click)="enviarAI()" [disabled]="isLoading || !userPrompt.trim()">
-    {{ isLoading ? 'Procesando consulta...' : 'Consultar a Gemini' }}
+<div class="salvia-page-wrapper">
+  
+  <!-- Encabezado de la página -->
+  <div class="page-header-block">
+    <button class="btn-back" (click)="volver()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+      class="icon-back">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+    </svg>
+    Volver
   </button>
-
-  <div class="form-group">
-    <label for="outputResponse">Respuesta de la IA:</label>
-    <textarea 
-      id="outputResponse" 
-      [(ngModel)]="aiResponse" 
-      readonly
-      placeholder="La IA analizará tu petición y responderá aquí...">
-    </textarea>
+    <h1 class="page-main-title">Reportes e Historial</h1>
+    <p class="page-subtitle">Visualiza las transacciones y analiza métricas inteligentes de tu negocio</p>
   </div>
+
+  <!-- Distribución de Contenido: Sidebar + Card de Tabla -->
+  <div class="salvia-layout-content">
+    
+    <!-- SIDEBAR DE REPORTES E IA -->
+    <aside class="salvia-sidebar">
+      
+      <div class="sidebar-section">
+        <span class="section-label">REPORTES GENERALES</span>
+        <ul class="sidebar-menu-list">
+          <li class="menu-item active">
+            <!-- Icono de Barras / Reporte Diario -->
+            <svg class="menu-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            Reporte Diario
+          </li>
+          <li class="menu-item">
+            <!-- Icono de Calendario / Reporte Semanal -->
+            <svg class="menu-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Reporte Semanal
+          </li>
+          <li class="menu-item">
+            <!-- Icono de Calendario Agrupado / Reporte Bimestral -->
+            <svg class="menu-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"></path></svg>
+            Reporte Bimestral
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="section-label">MÉTRICAS INTELIGENTES IA</span>
+        
+        <!-- Grupo IA 1 -->
+        <div class="ai-menu-card">
+          <span class="ai-card-title">ROTACIÓN SEMANAL</span>
+          <div class="ai-time-options">
+            <button class="time-pill active">7 Días</button>
+            <button class="time-pill">30 Días</button>
+            <button class="time-pill">60 Días</button>
+          </div>
+        </div>
+
+        <!-- Grupo IA 2 -->
+        <div class="ai-menu-card">
+          <span class="ai-card-title">EFECTO FIN DE SEMANA</span>
+          <div class="ai-time-options">
+            <button class="time-pill">7 Días</button>
+            <button class="time-pill">30 Días</button>
+            <button class="time-pill">60 Días</button>
+          </div>
+        </div>
+
+        <!-- Grupo IA 3 -->
+        <div class="ai-menu-card">
+          <span class="ai-card-title">DINERO DURMIENTE</span>
+          <div class="ai-time-options">
+            <button class="time-pill">7 Días</button>
+            <button class="time-pill">30 Días</button>
+            <button class="time-pill">60 Días</button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <main class="salvia-main-card">
+      <div class="card-inner-header">
+        <div class="header-titles">
+          <h2 class="card-main-title">Lista de Transacciones</h2>
+          <span class="card-subtitle">Control de registros (Hoy)</span>
+        </div>
+        <div class="card-action-bar">
+          <div class="search-input-wrapper">
+            <svg class="salvia-search-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" placeholder="Buscar transacciones..." class="salvia-search-input">
+          </div>
+          <button class="btn-salvia-secondary">Limpiar</button>
+          <button class="btn-salvia-primary">Filtrar</button>
+        </div>
+      </div>
+
+      <div class="salvia-table-wrapper">
+  <table class="salvia-data-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">#</th>
+        <th style="width: 45%;">
+          <div class="header-filter-inline">
+            <span>TIPO TRANSACCIÓN</span>
+            <select class="salvia-header-select" (change)="cambiarFiltroTipo($event)">
+              <option value="TODOS">Todos</option>
+              <option value="Venta">Ventas</option>
+              <option value="Compra">Compras</option>
+              <option value="Gasto Interno">Gastos Internos</option> </select>
+          </div>
+        </th>
+        <th style="width: 30%;">MONTO TOTAL</th>
+        <th style="width: 15%; text-align: center;">VER DETALLE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let transaccion of transaccionesFiltradas$ | async; let idx = index">
+        <td class="cell-bold text-muted">{{ idx + 1 }}</td>
+        
+        <td class="cell-bold">
+          <span [ngClass]="{
+            'badge-venta': transaccion.tipo === 'Venta', 
+            'badge-compra': transaccion.tipo === 'Compra',
+            'badge-gasto': transaccion.tipo === 'Gasto Interno'
+          }">
+            {{ transaccion.tipo }}
+          </span>
+        </td>
+        
+        <td class="cell-bold text-dark">S/. {{ transaccion.montoTotal | number:'1.2-2' }}</td>
+        
+        <td style="text-align: center;">
+          <button class="btn-table-action" title="Ver Detalle" (click)="verDetalleTransaccion(transaccion.id, transaccion.tipo)">
+            <svg class="table-action-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </td>
+      </tr>
+
+      <tr *ngIf="(transaccionesFiltradas$ | async)?.length === 0">
+        <td colspan="4" style="padding: 50px; text-align: center;" class="text-muted">
+          No se registran ventas, compras ni gastos internos el día de hoy.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+      <div class="salvia-card-footer">
+        <span class="pagination-info">
+          Registros encontrados hoy: {{ (transaccionesFiltradas$ | async)?.length || 0 }}
+        </span>
+      </div>
+    </main>
 </div>
