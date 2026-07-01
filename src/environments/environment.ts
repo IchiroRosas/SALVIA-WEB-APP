@@ -8,5 +8,11 @@ export const environment = {
         messagingSenderId: "572457901891",
         appId: "1:572457901891:web:546fa1e4ec7168bae819f6",
         measurementId: "G-T1D4PMLBZS"
+    },
+    apiFunctions: {
+        preguntarGemini: 'https://preguntargemini-tspnk7x6ya-uc.a.run.app',
+        generarReporteDiario: 'https://generarreportediario-tspnk7x6ya-uc.a.run.app',
+        generarReporteMensual: 'https://generarreportemensual-tspnk7x6ya-uc.a.run.app',
+        generarReporteBimestral: 'https://generarreportebimestral-tspnk7x6ya-uc.a.run.app',
     }
 };
